@@ -1,0 +1,52 @@
+Abstract
+What we want to give in this paper is a vision of a language for specifying/modeling/manipulating/reasoning about (verification angle) multipartite entanglement distribution through quantum networks.
+We envision to draw inspiration from BellKAT, an algebraic language and an associated as a software tool for the analysis of biparite entanglement distribution (hence the name 'Bell').
+
+---
+Section I. Introduction
+Introduction should be brief 
+- what a QN is (QN distributes entanglement through network nodes)
+- Foundational works on QN focus/handle on Bell pairs as the key resource, as most QN application run on top of Bell pairs (teleportation, qkd, distributed quantum computing) 
+- Modern quantum networks leverage reduntancy of multipartite states (even when the end goal is bipartite states). The clear motivation of our work is to describe the behaviour of these protocols through a language, especially all-photonic entanglement distribution
+
+
+---
+Section II. Problem statement
+Drawing inspiration from BellKAT, the key challange is to find the right/correct language abstractions 
+We need abstractions for (i) multipartite quantum state, (ii) actions that encode/model/manipulate the primitive quantum network operations, (iii) protocols composed of these actions sequentially or concurrently
+
+(i, short elaboration)
+In BellKAT, the state is a Bell pair abstracted to the point where is represented as a symmetric pair of network nodes/locations A~B (network nodes that contain the qubits). A Bell pair is a simple graph state. For example, we abstract over which of the Bell states we have (it is not needed to describe the actions); this is the right equivalence class for BellKAT.
+Writing a multipartite state as, e.g., A~B~C~D is clearly not sufficient, as the entanglement structure changes the state. [an inline equation can show A~B~C~D as a chain (D and A are not connected) or as square (D and A are directly connected) - these are states that are different and behave differently]
+
+[Still, at the level of abstraction we desire to model the quantum network operations of interest, we represent two behaviourally equivalent inputs in the same way.
+The level of abstraction we want is one where behaviourally equivalent multipartite states are represented in the same way. We consider as behaviourally equivalent, multipartite states that can be interchangably used as input for some quantum network operation.]
+
+The most natural thing is to reprent multipartite states as graph states.
+[footnote, as normal text would break the flow: Graph states are usually considered up to local operations; two locally-equivalent graph states can behave differently under the same physical opearation and produce different output graph-states, even non-locally equivalent ones. However, since local operations are generally considered to be cheap, we can easily transform a graph state into another locally equivalent one, so we assume an implementation will do it]
+However, this is not general enough:
+for example, two non-locally-equivalent linear graph states A1~A2~A3~A4 and A1~A3~A2~A4 at node A, are clearly equivalent for any network operation of interest up to the arbitrary relabiling of the qubits - they should have the same representation.
+
+Thus, a suitable state representation is needed.
+
+(ii, short elaboration)
+Primitives manipulating biparitite-entangled pairs are, for instance, 
+entanglement generation, swapping, and distillation.
+BellKAT describes these primitives as actions [r triangle o], which can be though of functions that take in input a multiset of Bell pairs [r], which are consumed to output another multiset of Bell pairs [o].
+E.g., a swap action requires and consumes A~B and B~C to produce A~C or fail.
+
+We are striving toward a similar design for actions manipulating multipartite states, taken as input and given as output.
+These are enabled by the correct choice of equivalent class of quantum states in (i).
+We will encode operations such as graph-state fusions and measurements.
+However, these are less trivial than the bi-partite case.
+
+Take for example graph-state fusion, an operation used to entangle - fuse the components - of separate graph states.
+The following example illustrates that specifying a fusion operation by only specifying its input graph states together with the qubits to fuse would not be well-defined under local-operation equivalency. 
+
+[...Kenneth Example]
+
+Thus, it is necessary to specify both input and output of an action.
+
+(iii, short elaboration)
+The goal to express protocols as equations, combining actions by suitable operators for sequential and concurrent/parallel composition, building compositional semantics faithful to the behaviour of the protocol under execution.
+We envision is that after finding the right abstraction for (i) and (ii), these will compose/propagate in a correct and sound manner to protocols as stated above by analogous rules/axioms that were established in BellKAT.
