@@ -1,0 +1,24 @@
+% ---------------------------------------------------------------------------
+% LC equivalence: local complementation at A2 on the path A1-A2-A3.
+%   N(A2) = {A1,A3} -> tau_{A2} toggles (A1,A3): path -> triangle.
+% gold = edge added at this step; accent vertex = complemented vertex.
+% ---------------------------------------------------------------------------
+{\footnotesize
+% panel: #1 = extra edges
+\newcommand{\lcep}[1]{%
+  \begin{tikzpicture}[baseline={(0,0.4)},x=1cm,y=1cm,
+      gv/.append style={minimum size=6.5mm,font=\footnotesize}]
+    \node[gv,frv] (a2) at (0,0.95) {$A2$};
+    \node[gv] (a1) at (-0.75,0) {$A1$};
+    \node[gv] (a3) at (0.75,0) {$A3$};
+    \draw[ge](a1)--(a2);\draw[ge](a2)--(a3);
+    #1
+  \end{tikzpicture}}
+\setlength{\tabcolsep}{4pt}%
+\begin{tabular}{@{}c@{}c@{}c@{}}
+\lcep{}
+  & {\normalsize\tikz[baseline=-0.5ex]\draw[{To}-{To}] (0,0) --
+      node[above,inner sep=2pt]{$\localComp{A2}$} (1.2,0);}
+  & \lcep{\draw[newe](a1)--(a3);}
+\end{tabular}%
+}

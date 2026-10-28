@@ -1,0 +1,46 @@
+% !TEX root = ../IEEE_main.tex
+
+Our language divides a protocol into \emph{rounds}, i.e., time windows in which actions execute synchronously~\cite{buckley2024bellkat,buckley2025pbkat}.
+Protocol resources are the \ac{lcp} classes $\lcpClass{G} \in \LcpSet$ of the graph states held by the network,
+and a \emph{network state} $s \in \Ms{\LcpSet}$ is a multiset of \ac{lcp} classes.
+
+\paragraph{Actions.}
+A basic action $\act{r}{(\sum p \cdot o)}$ consumes the classes $r \in \Ms{\LcpSet}$ and produces the classes $o\in \Ms{\LcpSet}$ with probability $p$;
+if $r$ is not present in the network, the action does nothing.
+Common actions are
+%
+\[
+\begin{aligned}
+\actn{cr}{\lcpClass{G}}_p \triangleq \actp{\emptyset}{p}{\ms{\lcpClass{G}}}, \qquad &
+\actn{tr}{\lcpClass{G} \to \lcpClass{G'}}_p \triangleq \actp{\ms{\lcpClass{G}}}{p}{\ms{\lcpClass{G'}}}, \\ 
+\actn{wait}{r} \triangleq \act{r}{r}, \qquad &
+\actn{meas}{\lcpClass{G} \to \lcpClass{G'}} \triangleq \act{\ms{\lcpClass{G}}}{\ms{\lcpClass{G'}}}, \\
+\actn{fuse}{r \to o \mid o_{\mathrm{fail}}}_p \triangleq &\ \act{r}{(p \cdot o + (1-p) \cdot o_{\mathrm{fail}})}, \\
+\end{aligned}
+\]
+%
+which respectively create a graph state at a node, transmit some qubits of $G$ to other nodes (yielding $G'$), idle for one round, perform Pauli measurements on qubits of $G$ (yielding $G'$ after post-measurement corrections) or fuse graph states, with $p$ the success probability of the action.
+Here $\actp{r}{p}{o}$ is short for $\act{r}{(p \cdot o + (1-p) \cdot \emptyset)}$;
+for transmissions, a lost qubit leaves the remaining qubits in a mixed state rather than a graph state, hence invalidating the whole graph.
+%
+In contrast, a failed fusion yields an output $o_{\mathrm{fail}}$, which in general is not empty.
+
+As shown in \cref{fig:LC-input-nonLC-output}, the same physical operation can map one input class to different output classes depending on which element of the input class the operation is applied to. Thus, an action must state its output class explicitly.
+%
+For instance, let $G_a$ be the graph state in \cref{fig:LC-input-nonLC-output}a; we can specify two distinct actions\footnote{For simplicity, in this example the failure of any fusion invalidates the whole state, i.e., $o_{\mathrm{fail}} = \emptyset$.} %, succeeding with probability $p = q^3$, for fusion success probability $q$ 
+as follows:
+%
+\[
+\alpha \triangleq \actn{fuse}{\ms{\lcpClass{G_a}} \to \ms{\lcpClass{G_{a'}}} \mid \emptyset}_p
+\quad\text{and}\quad
+\beta \triangleq \actn{fuse}{\ms{\lcpClass{G_a}} \to \ms{\lcpClass{G_{b'}}} \mid \emptyset}_p.
+\]
+%
+Assuming $G_a$ as the canonical representative\alenote{decide whether we want to keep the canonical rep. If not, we can change this to $\beta$ having input $\ms{\lcpClass{G_b}$}, and in text talk about network state having $G_a$ vs $G_b$ for the two actions.} of its \ac{lcp} class, $\alpha$ performs fusions $\fuse{A1,T1}$, $\fuse{B1,T2}$ and $\fuse{C1,T3}$ directly, yielding $G_{a'}$ as in \cref{fig:LC-input-nonLC-output}a';
+the second first applies the (free) local complementations $\localComp{A2}\localComp{B2}\localComp{C2}$ and then the three fusions, yielding $G_{b'}$ as in \cref{fig:LC-input-nonLC-output}b'.
+
+\paragraph{Composition of Actions.}
+Actions are composed into protocols as in PBKAT~\cite{buckley2025pbkat}:
+sequentially across rounds ($e \,; f$), in parallel ($e \parallel f$) or with priority ($e \circ f$) within one round, and with guarded conditionals and while loops ($e +_\alpha f$, $e^{(\alpha)}$), where guards $\alpha$ are predicates over network states.
+
+\alenote{Should we make an example of a simple concrete protocol (with figure)? Do we have space?}

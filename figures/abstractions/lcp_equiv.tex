@@ -1,0 +1,42 @@
+% ---------------------------------------------------------------------------
+% LCP equivalence: path B1-A1-A2-B2  --P(A1<->A2)-->  path B1-A2-A1-B2
+%   --tau_{A1}-->  N(A1)={A2,B2}, toggles (A2,B2).
+% Left and right graphs are LCP equivalent, but neither LC equivalent
+% (checked by LC-orbit enumeration) nor LP equivalent (not isomorphic).
+% Same graphs as lp_equiv.tex up to renaming; dashed boxes = network nodes
+% A (top) and B (bottom).  Vertices drawn in the path order of the middle panel.
+% gold = edge added at this step; accent vertex = complemented vertex.
+% ---------------------------------------------------------------------------
+{\footnotesize
+% panel: #1..#4 = labels in path order ; #5 = style of 3rd vertex ;
+%        #6 = extra edges
+\newcommand{\lcpp}[6]{%
+  \begin{tikzpicture}[baseline={(0,0.4)},x=1cm,y=1cm,
+      gv/.append style={minimum size=6.5mm,font=\footnotesize},
+      netn/.style={draw=Vcol!70,dashed,rounded corners=4pt,fill=##1,
+                   fill opacity=0.12,inner sep=2.5pt}]
+    \node[gv] (p1) at (0,0) {$#1$};
+    \node[gv] (p2) at (0,1.05) {$#2$};
+    \node[gv,#5] (p3) at (1.05,1.05) {$#3$};
+    \node[gv] (p4) at (1.05,0) {$#4$};
+    \begin{pgfonlayer}{background}
+    \node[netn=Zcol,fit=(p2)(p3)] (nA) {};
+    \node[netn=Ycol,fit=(p1)(p4)] (nB) {};
+    \draw[ge](p1)--(p2)--(p3)--(p4);
+    #6
+    \end{pgfonlayer}
+    \node[font=\scriptsize\bfseries,text=Vcol,anchor=east] at (nA.west) {A};
+    \node[font=\scriptsize\bfseries,text=Vcol,anchor=east] at (nB.west) {B};
+  \end{tikzpicture}}
+\setlength{\tabcolsep}{2pt}%
+\resizebox{0.75\linewidth}{!}{%
+\begin{tabular}{@{}c@{\hspace{6pt}}c@{\hspace{6pt}}c@{\hspace{6pt}}c@{\hspace{6pt}}c@{}}
+\lcpp{B1}{A1}{A2}{B2}{}{}
+  & {\normalsize\tikz[baseline=-0.5ex]\draw[{To}-{To}] (0,0) --
+      node[above,inner sep=2pt]{\small$\permnoletter{A1}{A2}$} (1.9,0);}
+  & \lcpp{B1}{A2}{A1}{B2}{frv}{}
+  & {\normalsize\tikz[baseline=-0.5ex]\draw[{To}-{To}] (0,0) --
+      node[above,inner sep=2pt]{$\localComp{A1}$} (1.0,0);}
+  & \lcpp{B1}{A2}{A1}{B2}{frv}{\draw[newe](p2)--(p4);}
+\end{tabular}}%
+}

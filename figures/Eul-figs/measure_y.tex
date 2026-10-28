@@ -1,0 +1,18 @@
+% Y measurement on triangle (v,a,b): local-complement at v toggles the a-b edge
+% (present here, so it is REMOVED -- shown red, then gone), then delete v.
+% before --> after
+\begin{tikzpicture}[baseline=(current bounding box.center),scale=0.7,
+    dele/.style={Xcol,line width=1.3pt}]
+  \node[yv,scale=.85] (v) at (0.6,1)   {$v$};
+  \node[gv,scale=.85] (a) at (0,0)     {$a$};
+  \node[gv,scale=.85] (b) at (1.2,0)   {$b$};
+  \draw[dele] (v)--(a);
+  \draw[dele] (v)--(b);
+  \draw[dele] (a)--(b);
+  \node[Xcol,font=\Large] at (v) {$\times$};
+\end{tikzpicture}%
+\;$\xrightarrow{\ \tau_v,\;\mathrm{del}\;v\ }$\;%
+\begin{tikzpicture}[baseline=(current bounding box.center),scale=0.7]
+  \node[gv,scale=.85] (a) at (0,0)   {$a$};
+  \node[gv,scale=.85] (b) at (1.2,0) {$b$};
+\end{tikzpicture}

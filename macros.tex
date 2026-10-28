@@ -1,0 +1,200 @@
+%% ---------------------------------------------------------------------------
+%% Shared notation for the Eulerian-frame chapters
+%% (Tracking Stabilizer States / Scaling Analysis / Use cases).
+%% Input from the thesis preamble, after macrosetup.
+%% Kept in sync with GraphStates_Euler_repr.tex and the notes-EulVec-* files.
+%% ---------------------------------------------------------------------------
+
+%% TikZ libraries needed by the figures under figures/graphStates/
+\usetikzlibrary{positioning,calc,arrows.meta,fit,backgrounds,
+                shapes.geometric,matrix,decorations.pathreplacing}
+
+%% Plots for the scaling chapter (figures/graphStates/scaling_*.tex)
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.16}
+
+%% Side-by-side panels inside the result environments of the use-cases chapter.
+%% (macros.tex is not input by thesis.tex, so it is loaded here.)
+\usepackage{subcaption}
+
+%% Colours (one per Pauli axis), shared with the paper and slide figures
+\definecolor{Xcol}{HTML}{C62828} % X  -> red
+\definecolor{Zcol}{HTML}{1565C0} % Z  -> blue
+\definecolor{Ycol}{HTML}{2E7D32} % Y  -> green
+\definecolor{Pcol}{HTML}{7B1FA2} % Photon -> purple
+\definecolor{Vcol}{HTML}{37474F} % vertices / structure
+\definecolor{Acc}{HTML}{B8860B}  % accent / highlight
+\definecolor{usiblue}{HTML}{14467A}
+
+% Placeholder for WIP figures
+\newcommand{\ph}[2][0.1\textheight]{%
+  \fbox{\parbox[c][#1][c]{0.8\linewidth}{\centering\ttfamily\footnotesize\color{black!65} #2}}}
+
+%% Coloured Pauli letters
+\newcommand{\Xp}{\textcolor{Xcol}{$X$}}
+\newcommand{\Zp}{\textcolor{Zcol}{$Z$}}
+\newcommand{\Yp}{\textcolor{Ycol}{$Y$}}
+% \newcommand{\cX}{\textcolor{Xcol}{X}}
+% \newcommand{\cY}{\textcolor{Ycol}{Y}}
+% \newcommand{\cZ}{\textcolor{Zcol}{Z}}
+\newcommand{\cX}{X}
+\newcommand{\cY}{Y}
+\newcommand{\cZ}{Z}
+\newcommand{\PX}[1]{\textcolor{Xcol}{X_{#1}}}
+\newcommand{\PY}[1]{\textcolor{Ycol}{Y_{#1}}}
+\newcommand{\PZ}[1]{\textcolor{Zcol}{Z_{#1}}}
+% 3-qubit ket coloured by basis: qubits 1,3 in X basis (red), qubit 2 in Z (blue)
+\newcommand{\ketc}[3]{\ket{\textcolor{Xcol}{#1}\textcolor{Zcol}{#2}\textcolor{Xcol}{#3}}}
+% changed vector entry (used in step-by-step examples)
+\newcommand{\chg}[1]{\underline{#1}}
+\newcommand{\chp}[1]{#1} % changed-basis marker in figures (no styling; swap to \chg to underline)
+
+%% Groups, graphs, frames
+\newcommand{\hilb}{\mathcal{H}}                   % single-qubit Hilbert space
+\newcommand{\hilbn}[1]{\hilb_{#1}}                % Hilbert space of #1 qubits
+\newcommand{\CZ}{\mathrm{CZ}}
+\newcommand{\CX}{\mathrm{CX}}
+\newcommand{\CY}{\mathrm{CY}}
+\newcommand{\LC}{\mathrm{LC}}
+\newcommand{\Stab}{\mathcal{S}}
+\newcommand{\Pauli}{\mathcal{P}}
+\newcommand{\Cliff}{\mathcal{C}}
+\newcommand{\canonDeg}{d_{\mathrm{canon}}}  % degree left behind by canonicalization
+\newcommand{\NN}[1]{\mathcal{N}(#1)}
+\newcommand{\NNp}[1]{\mathcal{N}'(#1)}
+\newcommand{\NNc}[1]{\mathcal{N}[#1]}          % closed neighbourhood
+\newcommand{\NNg}[2]{\mathcal{N}_{#1}(#2)}     % neighbourhood in a named graph
+\newcommand{\NNcg}[2]{\mathcal{N}_{#1}[#2]}    % closed neighbourhood in a named graph
+\newcommand{\Lframe}{\mathbf{L}}
+\newcommand{\bigotimesL}{\bigotimes_i L_i}
+\newcommand{\bigotimesuNN}{\bigotimes_{u\in\NN{v}}}
+
+%% Gates
+\newcommand{\sqX}[1]{\sqrt{#1 iX}}
+\newcommand{\sqY}[1]{\sqrt{#1 iY}}
+\newcommand{\sqZ}[1]{\sqrt{#1 iZ}}
+\newcommand{\SX}{S_{X}}
+\newcommand{\MX}{\mathrm{M}_X}
+\newcommand{\tri}{\,\triangle\,}
+
+%% ---------------------------------------------------------------------------
+%% Defined notation.
+%% Every symbol the text introduces as "X denotes ..." has a macro here, named
+%% after the *meaning* rather than the glyph.  Change a definition once and the
+%% whole document follows.  Grouped by the section that introduces it.
+%% ---------------------------------------------------------------------------
+\newcommand{\bp}[2]{#1 \!\!\sim\!\! #2}
+
+%% -- Graph macros --------
+\newcommand{\edge}[0]{\!\!\sim\!\!}
+% \newcommand{\edge}[0]{\!-\!}
+\newcommand{\fuse}[1]{\mathrm{F}(#1)}
+
+%% ----- Permutation macros ----------
+\newcommand{\permnoletter}[2]{#1 \!\leftrightarrow\! #2}
+\newcommand{\perm}[2]{\mathrm{P}_{#1 \leftrightarrow #2}}
+
+%% ----- Language macros (PBKAT-style syntax) ----------
+\newcommand{\lcpClass}[1]{[#1]}                   % LCP class of a graph state
+\newcommand{\LcpSet}{\mathcal{L}}                 % set of LCP classes
+\newcommand{\Ms}[1]{\mathcal{M}(#1)}              % multisets
+\newcommand{\Dist}[1]{\mathcal{D}(#1)}            % (sub)distributions
+\newcommand{\Conv}[1]{\mathcal{C}(#1)}            % convex sets of subdistributions
+\newcommand{\ms}[1]{\{\!\!\{#1\}\!\!\}}           % multiset literal
+\newcommand{\act}[2]{#1 \triangleright #2}        % basic action r |> o
+\newcommand{\actp}[3]{#1 \triangleright_{#2} #3}  % action succeeding with prob. #2
+\newcommand{\actn}[2]{\mathrm{#1}\langle #2\rangle} % named action, e.g. cr<...>
+
+
+%% -- Graph states and framed states --------
+\newcommand{\graphState}{\ket{G}}                 % graph state of G
+\newcommand{\graphStateOf}[1]{\ket{#1}}           % graph state of a named graph
+\newcommand{\framedState}{\ket{G,\Lframe}}        % running framed state
+\newcommand{\framedStatePrime}{\ket{G',\Lframe'}}        % running framed state
+\newcommand{\framedStateOf}[2]{\ket{#1,#2}}       % framed state, named arguments
+\newcommand{\stabGen}[1]{K_{#1}}                  % graph-state generator at a vertex
+\newcommand{\stabGenConj}[1]{\tilde{K}_{#1}}      % generator conjugated by \lcUnitary
+\newcommand{\stabGenNew}[1]{K'_{#1}}              % generator of the complemented graph
+%% Dual vertex basis: the frame conjugated the other way, \Lframe^\dagger P \Lframe.
+%% Measured observables are read off this one, not off \vertexBasis.
+\newcommand{\vname}[1]{\textnormal{#1}}          % vertex (qubit) name
+
+%% -- Graph operations  ----------------------------------
+\newcommand{\localComp}[1]{\tau_{#1}}             % local complementation at a vertex
+\newcommand{\localCompOn}[2]{\tau_{#1}(#2)}       % local complement of a graph
+\newcommand{\pivotGraph}[3]{#1\wedge #2#3}        % pivot of a graph along an edge
+\newcommand{\lcUnitary}[1]{U_{#1}}                % local Clifford realising \localComp
+
+%% -- Fusion  ------------------------------------------
+\newcommand{\fusionParityOne}{P}                  % first measured weight-two parity
+\newcommand{\fusionParityTwo}{P'}                 % second measured weight-two parity
+\newcommand{\parityGroup}{\Gamma}                 % abelian group of measured parities
+\newcommand{\parityGroupRef}{\Gamma_{\mathrm{ref}}} % reference fusion class
+\newcommand{\heraldParity}{\Pi_{\mathrm{her}}}    % heralding parity of the setup
+\newcommand{\failMeas}[1]{F_{#1}}                 % single-qubit basis measured on failure
+\newcommand{\fusionSuccess}{p_{\mathrm{success}}}                % fusion success probability
+\newcommand{\boundaryStab}{\tilde{S}_{AB}}        % signed stabilizer supported in {A,B}
+\newcommand{\boundaryStabImg}{\Sigma}             % its image under the frame
+\newcommand{\CZon}[2]{\CZ_{#1#2}}                 % controlled-Z on a pair of qubits
+\newcommand{\CXon}[2]{\CX_{#1\to #2}}                 % controlled-Z on a pair of qubits
+\newcommand{\measX}[1]{\MX(#1)}                   % destructive single-qubit X measurement
+
+%% -- Named states ----------------------------------------------------------
+\newcommand{\bellPlus}{\ket{\Phi^{+}}}            % maximally entangled Bell state
+\newcommand{\bellMinus}{\ket{\Phi^{-}}}           % sign-flipped Bell state
+\newcommand{\GHZstate}[1]{\ket{\mathrm{GHZ}_{#1}}} % GHZ state on n qubits
+
+%% OT1 compatibility: the template fixes OT1 fontenc, which lacks the
+%% ogonek accent \k used in some bib entries; degrade it to the bare letter.
+\DeclareTextCommand{\k}{OT1}[1]{#1}
+
+%% Operators
+\DeclareMathOperator{\sgn}{sgn}
+\DeclareMathOperator{\rank}{rank}
+\DeclareMathOperator{\supp}{supp}
+\DeclareMathOperator{\diag}{diag}
+\DeclareMathOperator{\offdiag}{offdiag}
+
+%% ---------------------------------------------------------------------------
+%% TikZ styles shared with the figures under figures/graphStates/
+%% ---------------------------------------------------------------------------
+\tikzset{
+  gv/.style   ={circle,draw=Vcol,thick,minimum size=7mm,inner sep=0pt,
+                fill=Vcol!8,font=\small},
+  gvs/.style  ={gv,minimum size=5mm,font=\scriptsize},
+  xv/.style   ={gv,fill=Xcol!18,draw=Xcol,line width=1pt},
+  zv/.style   ={gv,fill=Zcol!16,draw=Zcol,line width=1pt},
+  yv/.style   ={gv,fill=Ycol!16,draw=Ycol,line width=1pt},
+  ghost/.style={gv,minimum size=5mm,font=\scriptsize,draw=Vcol!35,
+                fill=Vcol!4,text=Vcol!45,dashed},
+  frv/.style  ={fill=Acc!28,draw=Acc,line width=1pt}, % vertex carrying frame data
+  fuv/.style  ={fill=Ycol!18,draw=Ycol,line width=1pt}, % fusion qubit
+  ge/.style   ={Vcol,thick},
+  newe/.style ={Acc,line width=1.3pt},
+  gone/.style ={Xcol,line width=1.1pt,dashed},   % edge removed at this step
+  axarr/.style={-{Stealth[length=2mm]},thick},
+  bigarr/.style={-{Stealth[length=3.5mm]},line width=1.4pt,Vcol},
+  plabel/.style={font=\small,inner sep=1pt},
+  pend/.style ={draw=Acc,fill=Acc!15,rounded corners=1pt,font=\small,
+                inner sep=1.5pt},
+  opbox/.style ={draw=usiblue,rounded corners=2pt,fill=usiblue!8,
+                font=\small,align=center,inner sep=3pt},
+  dec/.style  ={draw=Acc,rounded corners=2pt,fill=Acc!10,
+                font=\scriptsize,align=center,inner sep=3pt},
+  % small unlabelled nodes for inline stabilizer-support mini graphs
+  pnode/.style={circle,draw=Vcol,minimum size=2.8mm,inner sep=0pt,
+                line width=.5pt,fill=Vcol!8},
+  pX/.style={pnode,fill=Xcol!22,draw=Xcol},
+  pZ/.style={pnode,fill=Zcol!20,draw=Zcol},
+  pO/.style={pnode},
+  % ZX-calculus figures (sec:track-zx): Z-spiders and Hadamard boxes
+  zsp/.style  ={circle,draw=Zcol,line width=1pt,fill=Zcol!12,
+                inner sep=1pt,minimum size=6mm,font=\scriptsize},
+  hbox/.style ={rectangle,draw=Acc,line width=1pt,fill=Acc!25,
+                inner sep=1.5pt,minimum size=3.6mm,font=\scriptsize},
+  zwire/.style={Vcol,thick},
+}
+
+%% -- Placeholder for references whose target is not written yet -------------
+%% (mirrors macros.tex, which thesis.tex does not input)
+\providecommand{\todoref}[1]{\textcolor{red}{[REF TODO: #1]}}

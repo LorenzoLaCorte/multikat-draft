@@ -1,0 +1,33 @@
+% Shared definition of the repeater graph state (RGS) that lives inside node B
+% of QN_topology_anim.tex.  Kept in its own file so the same drawing can be
+% reused on a slide of its own (see RGS_state.tex).
+%
+% Provides: the colour Pcol, the styles pq / pqin / rgse / half, the column
+% coordinates, and the macro
+%   \rgs{show outer}{left inner rows}{right inner rows}
+\definecolor{Pcol}{HTML}{7B1FA2}   % photonic qubits
+\tikzset{
+  pq/.style   = {circle, draw=Pcol, fill=Pcol!35, minimum size=3.2mm,
+                 inner sep=0pt, line width=.5pt},           % photonic qubit
+  pqin/.style = {pq},                                       % inner qubit (override per figure)
+  rgse/.style = {Zcol, line width=.9pt},                    % RGS edge
+  half/.style = {rounded corners=3pt, draw=Pcol!30, densely dashed,
+                 line width=.7pt},                          % one half-RGS
+}
+% columns (as placed inside B's box, which spans x = 2.5 .. 5.9):
+%   2.68 photons arrived from A      5.72 photons arrived from C
+%   3.20 outer qubits, left half     5.20 outer qubits, right half
+%   3.80 inner qubits, left half     4.60 inner qubits, right half
+% rows: 1 -> +0.8, 2 -> 0, 3 -> -0.8
+\def\LP{2.68} \def\LO{3.20} \def\LI{3.80}
+\def\RI{4.60} \def\RO{5.20} \def\RP{5.72}
+
+\def\rgs#1#2#3{%
+  % complete bipartite graph between the two inner sets
+  \foreach \a in #2{\foreach \b in #3{\draw[rgse] (\LI,\a) -- (\RI,\b);}}
+  \if#11\foreach \y in #2{\draw[rgse] (\LO,\y) -- (\LI,\y);}
+         \foreach \y in #3{\draw[rgse] (\RI,\y) -- (\RO,\y);}
+         \foreach \y in {0.8,0,-0.8}{%
+           \node[pq] at (\LO,\y) {}; \node[pq] at (\RO,\y) {};}\fi
+  \foreach \y in #2{\node[pqin] at (\LI,\y) {};}
+  \foreach \y in #3{\node[pqin] at (\RI,\y) {};}}

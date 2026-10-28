@@ -1,0 +1,107 @@
+% \begin{itemize}
+%     \item "Local permutation" of qubits (local, hence only within a single node) is allowed (i.e., a node can always relabel and reshuffle its own qubits among its memory slots)  
+%     \item Graph states up to LC and local permutation (LP for short?). Together they form LCP (local complementation and permutation) equivalence classes
+% \end{itemize}
+
+We consider a set of network of nodes $\{A, B, \dots\}$, connected by quantum channels in an arbitrary topology.
+Each node has a set of quantum memories; we denote by $Xi$ the qubit held by node $X$ in its $i^{th}$ memory.
+Distributed multipartite states are graph states composed of those qubits.
+%
+The outcome of an entanglement distribution protocol is usually a graph state defined up to single-qubit Clifford corrections~\cite{}, 
+which can be applied locally and are often considered inexpensive; furthermore, the memory label $i$ in which a node stores a qubit is arbitrary.
+We thus abstract away these details and reason on \emph{equivalence classes} of graph states rather than on individual states.
+First, in \cref{sec:lc} we abstract local Clifford operations and in \cref{sec:lp} we abstract local relabelings of qubits, then in \cref{sec:lcp} we define the equivalence class that we consider for our language in \cref{sec:semantics}.
+
+\subsection{Local Cliffords (LC)}
+\label{sec:lc}
+
+\begin{wrapfigure}{r}{0.45\linewidth}
+    \centering
+    \input{figures/abstractions/lc_equiv}
+    \caption{\acs{lc} equivalent graph states, up to local complementation on $A2$. 
+    %\Acl{lc} $\localComp{A2}$ toggles the edge $A1 \edge A3$ (gold).
+    }
+    \label{fig:lc}
+\end{wrapfigure}
+We abstract the applications of local Clifford (LC) gates, 
+as they are often considered \emph{free} operations in the literature~\cite{}; 
+these are single-qubit gates, which typically have high fidelity~\cite{}. 
+Ignoring local Cliffords is equivalent to ignoring local complementations (also conveniently shortened to LC) \alenote{Insert brief transition from stab states to graph states}
+on the graph states, as local complementations are implemented by the Clifford unitary 
+$\lcUnitary{} = \SX \bigotimesuNN S^\dagger$~\cite{vandennest2004graphical}. 
+\acused{lc}
+%
+We hereafter refer to local Cliffords and local complementations interchangeably as simply \emph{\ac{lc}} operations.
+%
+We define the \emph{\ac{lc} equivalence} class as the set of states related by some sequence of \ac{lc} operations.
+For instance, the two graph states illustrated in \cref{fig:lc} are \emph{\ac{lc} equivalent}.
+% (up to \acl{lc} $\localComp{A2}$). 
+
+We note that in some cases, a physical operation can produce non-LC-equivalent outputs from LC-equivalent inputs. 
+For instance, as illustrated in \cref{fig:LC-input-nonLC-output}, two clearly LC-equivalent inputs (related by complementations $\localComp{A2} \localComp{B2} \localComp{C2}$) yield outputs in different LC equivalence classes after graph fusions $\fuse{A1,T1},\, \fuse{B1,T2},\, \fuse{C1,T3}$.
+%
+Albeit a non-trivial issue, this will not be problematic in our language as we discuss in \cref{sec:semantics}.
+
+\begin{figure}[t]
+    \centering
+    \resizebox{0.9\textwidth}{!}
+    {\input{figures/abstractions/lc_fusion}}
+    \caption{\Ac{lc} equivalent inputs yielding non-\ac{lc}-equivalent outputs. 
+    The inputs (a) and (b) differ by $\localComp{A2}\localComp{B2}\localComp{C2}$, 
+    which adds the gold edges in (b). 
+    Fusing the green qubits paired by green dashed lines yields a triangle with three leaves 
+    (a') and the complete 6-qubit graph (b'), which are not LC~equivalent.}
+    \label{fig:LC-input-nonLC-output}
+\end{figure}
+
+\subsection{Local Permutation (LP)}
+\label{sec:lp}
+
+We abstract the physical locations of qubits at a network node by allowing local relabeling of qubits.
+For instance, we want the two graph states of \cref{fig:lp} 
+%$A1 \edge A2 \edge A3 \edge A4$ and $A1 \edge A3 \edge A2 \edge A4$,  i.e., states $\ket{0000} + \ket{0011} + \ket{1100} - \ket{1111}$ and $\ket{0000} + \ket{0101} + \ket{1010} - \ket{1111}$, 
+to be considered equivalent, as the labels naming the qubits are arbitrary; both graph states are linear graphs of four qubits. We define \emph{\ac{lp}} such a relabeling of qubits. 
+%
+We only allow \emph{local} permutations, i.e., within the same network node, as permutations of distributed qubits would require (lossy) transmission of said qubits or non-local operations. % (e.g., a SWAP gate).
+%
+An \ac{lp} defines\ale{is?} a permutation matrix $P$ that maps the adjacency matrix $\Gamma$ of a graph to $P \Gamma P^\top$; 
+$P$ only permutes qubits of the same node, thus it is block diagonal. 
+For instance, a relabeling exchanging $\permnoletter{A1}{A2}$ in \cref{fig:lp} corresponds to the matrix shown below the arrow.
+
+\begin{wrapfigure}{r}{0.52\linewidth}
+    \centering
+    \input{figures/abstractions/lp_equiv}
+    \caption{\Ac{lp}-equivalent graph states, up to local permutation $\permnoletter{A2}{A3}$. 
+    }
+    \label{fig:lp}
+\end{wrapfigure}
+%
+We define the \emph{\ac{lp} equivalence} class as the set of states related by some \ac{lp}.
+We note that \ac{lp} equivalence and \ac{lc} equivalence are not correlated, as far as we have observed.\alenote{Validate/Check this?}
+For instance, the two graph states illustrated in \cref{fig:lp} are \emph{\ac{lp} equivalent}, but not \ac{lc} equivalent, while the states in \cref{fig:lc} are \ac{lc} but not \ac{lp} equivalent 
+
+\subsection{Local Complementation and Permutation (LCP)}
+\label{sec:lcp}
+
+An interesting observation arises when considering LC and LP equivalence together. 
+We define the \emph{\ac{lcp} equivalence} class as the set of states related by some sequence of \ac{lc} operations and \acp{lp}.
+We denote by $\lcpClass{G}$ the \ac{lcp} class of a graph state $\ket{G}$, and by $\LcpSet$ the set of all \ac{lcp} classes.
+For every class in $\LcpSet$, we fix a \emph{canonical representative}, \ale{Specify how the canonical representative is defined? Or don't mention this?} \alenote{We may not need to specify a canonical rep of LCP classes. We could define them as "the LCP eq. class of G is the set of graph states reachable by applying any LP or LC to G". Then in the implementation we will use the canonical rep for practicality of establishing LCP equivalence.}
+
+We note that \acp{lc} and \acp{lp} commute simply as
+$$
+\localComp{A1}\perm{A1}{A2} = \perm{A1}{A2}\localComp{A2}.
+$$
+Thus, \acs{lcp} equivalence can also be defined as the set of states related by one \acs{lp} followed by any sequence of \ac{lc} operations.
+% More simply, we can define \acs{lcp} equivalence as one \acs{lp} relating two \ac{lc} equivalence classes.
+From this definition, we observe that \acp{lp} relate different whole \ac{lc} equivalence classes.  
+% Thus, \ac{lcp} equivalence classes strictly contain entire \ac{lc} equivalence classes.
+%
+To show that multiple \ac{lc} equivalence classes can be contained in a single \ac{lcp} class, \cref{fig:lcp} illustrates two graph states that are \ac{lcp} equivalent but neither \ac{lc} nor \ac{lp} equivalent.
+
+\begin{figure}
+    \centering
+    \input{figures/abstractions/lcp_equiv}
+    \caption{\Ac{lcp} equivalent graph states (left and right), related by $\perm{A1}{A2}$ followed by $\localComp{A1}$, which are neither \ac{lc} nor \ac{lp} equivalent.}
+    \label{fig:lcp}
+\end{figure}

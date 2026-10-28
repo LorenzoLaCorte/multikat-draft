@@ -1,0 +1,24 @@
+\begin{tikzpicture}
+    \foreach \x/\n/\s in {0/A/qnode, 1.5/B/qrep, 3/C/qrep, 4.5/D/qrep, 6/E/qnode}{
+      \node[\s] (\n) at (\x,0) {\n};
+    }
+    \foreach \a/\b in {A/B, B/C, C/D, D/E}{\draw[thick] (\a) -- (\b);}
+    \draw[thick, dashed, accentblue, bend left=35] (A) to node[above,font=\tiny]{HEG} (B);
+    \draw[thick, dashed, accentblue, bend left=35] (B) to node[above,font=\tiny]{HEG} (C);
+    \draw[thick, dashed, accentblue, bend left=35] (C) to node[above,font=\tiny]{HEG} (D);
+    \draw[thick, dashed, accentblue, bend left=35] (D) to node[above,font=\tiny]{HEG} (E);
+    \draw[thick, dashed, accentgreen, bend left=60] (A) to node[above,font=\tiny,yshift=1pt]{ES@B} (C);
+    \draw[thick, dashed, accentgreen, bend left=60] (C) to node[above,font=\tiny,yshift=1pt]{ES@D} (E);
+    \draw[thick, dashed, accentred, bend left=65] (A) to node[above,font=\tiny,yshift=1pt]{ES@C} (E);
+\end{tikzpicture}
+
+\onslide<2->{   
+    \small\\[15pt]
+    \color{accentblue}  \textbf{Round 1:} HEG <$\bp AB, \bp BC, \bp CD, \bp DE$> \\[5pt]
+    \color{accentgreen} \textbf{Round 2:} Swap <$\bp A C$ @ B> || Swap <$\bp C E$ @ D> \\[5pt]
+    \color{accentred}   \textbf{Round 3:} Swap <$\bp A E$ @ C> \\[15pt]
+
+    \centering \color{black}
+    \footnotesize
+    BellKAT \cite{buckley2024bellkat} representation of the protocol
+}

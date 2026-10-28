@@ -1,0 +1,48 @@
+\begin{tikzpicture}[
+    % ── Tunable parameters ─────────────────────────────────────────
+    nodesize/.store in       = \nodesize,       nodesize       = 0.8cm,
+    nodethick/.store in      = \nodethick,      nodethick      = thick,
+    nodesep/.store in        = \nodesep,        nodesep        = 4cm,
+    linkthick/.store in      = \linkthick,      linkthick      = thick,
+    paircolor/.store in      = \paircolor,      paircolor      = blue,
+    pairbend/.store in       = \pairbend,       pairbend       = 20,
+    pairthick/.store in      = \pairthick,      pairthick      = thick,
+    labelbelow/.store in     = \labelbelow,     labelbelow     = 0.15cm,
+    linklabelabove/.store in = \linklabelabove, linklabelabove = 0.1cm,
+    pairlabelabove/.store in = \pairlabelabove, pairlabelabove = 0.45cm,
+    nodelabel/.store in      = \nodelabel,      nodelabel      = End-node,
+    replabel/.store in       = \replabel,       replabel       = Repeater,
+    linklabel/.store in      = \linklabel,      linklabel      = Quantum channel,
+    pairlabel/.store in      = \pairlabel,      pairlabel      = Entangled pair,
+    % ── Derived styles ─────────────────────────────────────────────
+    node/.style={
+        circle, draw, \nodethick,
+        minimum size=\nodesize,
+        inner sep=0pt
+    },
+]
+
+% ── Nodes ──────────────────────────────────────────────────────────
+\node[node] (A) at (0, 0)          {$A$};
+\node[node] (B) at (\nodesep, 0)   {$B$};
+\node[node] (C) at (2*\nodesep, 0) {$C$};
+
+% ── Physical link ──────────────────────────────────────────────────
+\draw[\linkthick] (A) -- (B);
+\draw[\linkthick] (B) -- (C);
+
+% ── Entangled pair ─────────────────────────────────────────────────
+\draw[\paircolor, dashed, \pairthick, bend left=\pairbend] (B) to (C);
+
+% ── Labels below nodes ─────────────────────────────────────────────
+\node[below=\labelbelow of A] {\small\nodelabel};
+\node[below=\labelbelow of B] {\small\replabel};
+\node[below=\labelbelow of C] {\small\nodelabel};
+
+% ── Annotation: physical link ──────────────────────────────────────
+\node[above=\linklabelabove] at (0.5*\nodesep, 0) {\small\linklabel};
+
+% ── Annotation: entangled pair ─────────────────────────────────────
+\node[above=\pairlabelabove] at (1.5*\nodesep, 0) {\small\pairlabel};
+
+\end{tikzpicture}

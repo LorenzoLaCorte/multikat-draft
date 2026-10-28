@@ -1,0 +1,35 @@
+% Distributed quantum computing, told with shapes only:
+%   several small QPUs (chips with a handful of qubits), linked by
+%   entanglement (blue), behave as ONE larger machine (dashed outline).
+% Palette from sections/macros-eulvec.tex.  Every line ends in % so \input'ing
+% this inside a \resizebox adds no stray space.
+\begin{tikzpicture}[%
+  chip/.style = {rounded corners=2pt, draw=Vcol, line width=1.1pt,%
+                 fill=Vcol!8, minimum size=14mm},%
+  pin/.style  = {Vcol!60, line width=1pt},%
+  qb/.style   = {circle, draw=Vcol!55, fill=Vcol!18, minimum size=3mm,%
+                 inner sep=0pt, line width=.5pt},%
+  link/.style = {Zcol, line width=1.6pt},%
+  whole/.style= {rounded corners=6pt, draw=Acc, line width=1.2pt,%
+                 densely dashed},%
+]%
+  \useasboundingbox (-1.9,-3.1) rectangle (5.9,2.1);%
+  % \qpu{name}{x}{y} -- a small quantum processor: pins outside, qubits inside
+  \def\qpu#1#2#3{%
+    \node[chip] (#1) at (#2,#3) {};%
+    \foreach \d in {-0.35,0,0.35}{%
+      \draw[pin] ($(#2,#3)+(-0.7,\d)$) -- ++(-0.22,0);%
+      \draw[pin] ($(#2,#3)+(0.7,\d)$)  -- ++(0.22,0);%
+      \draw[pin] ($(#2,#3)+(\d,0.7)$)  -- ++(0,0.22);%
+      \draw[pin] ($(#2,#3)+(\d,-0.7)$) -- ++(0,-0.22);}%
+    \foreach \dx in {-0.22,0.22}{\foreach \dy in {-0.22,0.22}{%
+      \node[qb] at ($(#2,#3)+(\dx,\dy)$) {};}}}%
+  \qpu{P}{0}{0.9}%
+  \qpu{Q}{4}{0.9}%
+  \qpu{R}{2}{-1.7}%
+  \draw[link] (P) -- (Q);%
+  \draw[link] (P) -- (R);%
+  \draw[link] (Q) -- (R);%
+  % together they are one machine
+  % \draw[whole] (-1.55,-2.75) rectangle (5.55,1.75);%
+\end{tikzpicture}%

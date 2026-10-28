@@ -1,0 +1,388 @@
+% Animated quantum-network topology (beamer overlays), linear A -- B -- C.
+%
+%   <1>      the bare topology.
+%   <2-5>    1G  : generate -> store -> Bell measurement at B -> long pair.
+%   <6-12>   3G  : the all-photonic protocol (Benchasattabuse et al.): B holds
+%                  one RGS built from two half-RGS, A and C send three photons
+%                  each, and the protocol is animated step by step, no text.
+%
+% Conventions (held in both stories):
+%   light-gray disc  = bare (matter) qubit, in that node's memory,
+%   purple disc      = photonic qubit,
+%   blue arc/line    = entanglement,
+%   green line       = the path chosen through the RGS,
+%   red cross        = measurement in Z (green cross: measurement in X),
+%   a qubit drawn inside a node box is AT that node; a qubit on a channel is
+%   in flight.
+%
+% Drawing order, back to front:  channels | node boxes | entanglement | qubits.
+% The bounding box is FIXED so \resizebox gives the same scale on every overlay.
+\input{figures/QN_tikz/rgs_core.tex}   % Pcol, pq/rgse/half, columns, \rgs
+\ifcsname pgf@layerbox@chan\endcsname\else\pgfdeclarelayer{chan}\fi
+\ifcsname pgf@layerbox@ent\endcsname\else\pgfdeclarelayer{ent}\fi
+\pgfsetlayers{chan,background,ent,main}
+\begin{tikzpicture}[
+  % node sites are BOXES, as in 1G_primitives.tex
+  sbox/.style  = {rectangle, rounded corners=2pt, draw=Vcol, thick,
+                  fill=Vcol!8, minimum height=9mm, inner sep=3pt},
+  rbox/.style  = {sbox, draw=Acc, line width=1.1pt, fill=Acc!12},
+  nlab/.style  = {font=\normalsize, text=Vcol, inner sep=1pt},
+  chan/.style  = {Vcol!40, line width=1.4pt},   % channels are NEUTRAL:
+                                                % blue is reserved for entanglement
+  role/.style  = {font=\small, text=Vcol!80, align=center},
+  rrole/.style = {role, text=Acc!55!black},
+  % --- qubits -------------------------------------------------------------
+  qb/.style    = {circle, draw=Vcol!55, fill=Vcol!18, minimum size=3.6mm,
+                  inner sep=0pt, line width=.6pt},          % bare qubit
+  slot/.style  = {circle, draw=Vcol!30, dashed, fill=none,
+                  minimum size=3.6mm, inner sep=0pt, line width=.5pt},
+  ent/.style   = {Zcol, line width=0.9pt},                  % entanglement
+  entgoal/.style= {Zcol!70, line width=0.9pt},      
+  entold/.style= {Zcol!35, line width=0.8pt, densely dashed},
+  meas/.style  = {Xcol, line width=1pt},
+  % --- 3G, all-photonic (pq / rgse / half come from rgs_core.tex) ----------
+  bsmok/.style = {ellipse, draw=Zcol, line width=.9pt, inner sep=0pt},
+  bsmno/.style = {ellipse, draw=Xcol, densely dashed, line width=.9pt,
+                  inner sep=0pt},
+  path/.style  = {Ycol, line width=1.6pt},                   % chosen path
+  flight/.style= {-{Stealth[length=2.6mm]}, Pcol, line width=1.1pt},
+  send/.style  = {-{Stealth[length=2.6mm]}, Vcol!55, line width=1pt},
+  capt/.style  = {font=\small, text=Vcol, align=center, text width=11cm},
+  tag/.style   = {font=\small\bfseries, align=left},
+  leg/.style   = {font=\scriptsize, text=Vcol!75, anchor=west},
+]
+
+% fixed canvas: keeps the \resizebox scale constant across overlays
+\useasboundingbox (-1.6,-3.9) rectangle (11.0,3.1);
+
+%%% ---------------------------------------------------------------- sites
+% \sites{A width}{A height}{B width}{B height} -- the three boxes, their
+% letters, their roles and the two channels.  The 3G overlays need taller end
+% nodes (three photons each) and a much larger B (the whole RGS lives in it).
+\def\sites#1#2#3#4{%
+  \begin{pgfonlayer}{background}
+    \node[sbox, minimum width=#1, minimum height=#2] (A) at (0,0)   {};
+    \node[rbox, minimum width=#3, minimum height=#4] (B) at (4.2,0) {};
+    \node[sbox, minimum width=#1, minimum height=#2] (C) at (8.4,0) {};
+  \end{pgfonlayer}
+  \node[rrole, below=3mm of B] {repeater};}
+
+% the two "end node" labels: beside A and C while the whole network is on
+% screen (nothing below the boxes there), below them once we have zoomed in
+\def\rolesside{\node[role, left=1.5mm of A] {end node};
+               \node[role, right=1.5mm of C] {end node};}
+\def\rolesbelow{\node[role, below=3mm of A] {end node};
+                \node[role, below=3mm of C] {end node};}
+
+% \extras{opacity} -- the rest of the network around our chain: two repeater
+% chains looping above and below A--B--C, with end nodes scattered around
+% them.  Drawn at full strength on the first overlay, then faded away,
+% because the whole story happens on the linear A--B--C part.
+\def\extras#1{%
+  \begin{pgfonlayer}{background}
+    % --- end nodes, scattered ------------------------------------------
+    \foreach \nm/\x/\y in {%
+        E1/-1.00/1.70, E2/0.95/2.65, E3/6.35/2.80, E4/10.15/2.55,
+        E5/9.95/1.35, E6/-1.05/-1.85, E7/1.05/-2.90, E8/4.55/-3.00,
+        E9/8.90/-3.00, E10/10.50/-1.85, E11/2.35/0.85, E12/7.20/0.85,
+        E13/4.20/2.75, E14/2.85/-1.10, E15/6.90/-1.05}{%
+      \node[sbox, minimum width=9mm, minimum height=6mm, inner sep=1pt,
+            opacity=#1] (\nm) at (\x,\y) {};}
+    % --- repeaters: two chains ------------------------------------------
+    \foreach \nm/\x/\y in {%
+        R1/1.05/1.45, R2/2.75/2.30, R3/4.65/1.55, R4/6.55/1.95,
+        R5/8.55/1.45, R6/1.25/-1.55, R7/2.95/-2.35, R8/5.85/-1.75,
+        R9/7.55/-2.45, R10/9.35/-1.45}{%
+      \node[rbox, minimum width=8mm, minimum height=6mm, inner sep=1pt,
+            opacity=#1] (\nm) at (\x,\y) {};}
+  \end{pgfonlayer}
+  \begin{pgfonlayer}{chan}
+    % upper chain, its stubs, and where it meets A -- B -- C
+    \foreach \u/\v in {%
+        E1/R1, R1/R2, R2/R3, R3/R4, R4/R5, R5/E5, E2/R2, E3/R4, E4/R5,
+        A/R1, B/R3, C/R5, E3/R3, E11/R1, E11/R3, E12/R5, E12/R4,
+        E13/R2, E13/R3, E14/B, E12/B, E11/B}{%
+      \draw[chan, opacity=#1] (\u) -- (\v);}
+    % lower chain
+    \foreach \u/\v in {%
+        E6/R6, R6/R7, R7/R8, R8/R9, R9/R10, R10/E10, E7/R7, E8/R8, E9/R9,
+        A/R6, B/R8, C/R10, E8/R7, E14/R6, E14/R8, E15/R8, E15/R9,
+        R1/R6}{%
+      \draw[chan, opacity=#1] (\u) -- (\v);}
+  \end{pgfonlayer}}
+
+% <1> the whole network: A, B, C are just three of its nodes, drawn at the
+% same size as every other node, so nothing is singled out yet
+\only<1>{\sites{9mm}{6mm}{8mm}{6mm}
+  \node[nlab] at (0,0) {$A$};\node[nlab] at (4.2,0) {$B$};
+  \node[nlab] at (8.4,0) {$C$};
+  \begin{pgfonlayer}{chan}
+    \draw[chan] (A) -- (B); \draw[chan] (B) -- (C);
+  \end{pgfonlayer}
+  \extras{1}}
+\only<2>{\sites{15mm}{9mm}{22mm}{9mm}
+  \node[nlab] at (-0.0,0) {$A$};\node[nlab] at (4.2,0) {$B$};
+  \node[nlab] at ( 8.4,0) {$C$};
+  \begin{pgfonlayer}{chan}
+    \draw[chan] (A) -- (B); \draw[chan] (B) -- (C);
+  \end{pgfonlayer}
+  \only<2-3>{\extras{0.18}}}
+% <2-> we zoom in on the linear A -- B -- C chain: its nodes grow, the rest
+% of the network fades away
+\only<3-9>{\sites{15mm}{9mm}{22mm}{9mm}
+  \node[nlab] at (-0.32,0) {$A$};\node[nlab] at (4.2,0) {$B$};
+  \node[nlab] at ( 8.72,0) {$C$};
+  \begin{pgfonlayer}{chan}
+    \draw[chan] (A) -- (B); \draw[chan] (B) -- (C);
+  \end{pgfonlayer}
+  \only<2-3>{\extras{0.18}}}
+% the all-photonic link is one channel per arm of the RGS: the three photons
+% of each end node travel side by side, each on the row of its own arm
+\only<10->{\sites{15mm}{26mm}{34mm}{30mm}
+  \node[nlab] at (0,1.05) {$A$};\node[nlab] at (2.72,1.24) {$B$};
+  \node[nlab] at (8.4,1.05) {$C$};
+  \begin{pgfonlayer}{chan}
+    \foreach \y in {0.8,0,-0.8}{%
+      \draw[chan] (0.75,\y) -- (2.50,\y);
+      \draw[chan] (5.90,\y) -- (7.65,\y);}
+  \end{pgfonlayer}}
+  
+\only<1-2>{\rolesside}
+\only<3->{\rolesbelow}
+
+%%% ------------------------------------------------------- qubit positions
+% a qubit AT a node is drawn INSIDE that node; only qubits in flight sit on
+% the channel line
+\coordinate (qA)  at ( 0.32, 0.00);     % memory slot inside A, facing B
+\coordinate (qBa) at ( 3.72, 0.00);     % memory slot inside B, facing A
+\coordinate (qBc) at ( 4.68, 0.00);     % memory slot inside B, facing C
+\coordinate (qC)  at ( 8.08, 0.00);     % memory slot inside C, facing B
+\coordinate (fA)  at ( 1.90, 0.00);     % half in flight A -> B
+\coordinate (fC)  at ( 6.50, 0.00);     % half in flight C -> B
+
+%%% ------------------------------------------------------------ 1G story
+% \pair{c1}{c2}{bend} -- two bare qubits joined by an entanglement arc
+\def\pair#1#2#3{\begin{pgfonlayer}{ent}%
+                  \draw[ent] (#1) to[bend left=#3] (#2);\end{pgfonlayer}%
+                \node[qb] at (#1) {}; \node[qb] at (#2) {};}
+
+\only<3>{
+  \draw[entgoal] (qA) to[bend left=40]  (qC);
+  \node[qb] at (qA) {}; \node[qb] at (qC) {};
+}
+
+% <2> generation attempt: A and C each keep one half and send the other to B
+\only<4>{%
+  \begin{pgfonlayer}{ent}
+    \draw[ent] (qA) to[bend left=40]  (fA);
+    \draw[ent] (qC) to[bend left=-40] (fC);
+  \end{pgfonlayer}
+  \node[qb] at (qA) {}; \node[qb] at (qC) {};
+  \node[pq] at (fA) {}; \node[pq] at (fC) {};
+  \draw[send] (2.25,0) -- (2.90,0);
+  \draw[send] (6.15,0) -- (5.50,0);}
+
+% <3> A--B succeeded and is stored; the B--C attempt FAILED (photon lost)
+\only<5>{\pair{qA}{qBa}{35}
+  \begin{pgfonlayer}{ent}
+    \draw[entold] (qC) to[bend left=-40] (fC);
+  \end{pgfonlayer}
+  \node[qb] at (qC) {}; \node[pq] at (fC) {};
+  \draw[meas] ($(fC)+(-.20,-.20)$) -- ($(fC)+(.20,.20)$);
+  \draw[meas] ($(fC)+(-.20,.20)$) -- ($(fC)+(.20,-.20)$);}
+
+% <4> $C$ tries again while the $A$--$B$ pair waits in memory
+\only<6>{\pair{qA}{qBa}{35}
+  \begin{pgfonlayer}{ent}
+    \draw[ent] (qC) to[bend left=-40] (fC);
+  \end{pgfonlayer}
+  \node[qb] at (qC) {}; \node[pq] at (fC) {};
+  \draw[send] (6.15,0) -- (5.50,0);}
+
+% <5> the second attempt succeeded: both pairs are now in B's memory
+\only<7>{\pair{qA}{qBa}{35}\pair{qBc}{qC}{35}}
+
+% <6> B measures its two qubits
+\only<8>{%
+  \begin{pgfonlayer}{ent}
+    \draw[entold] (qA) to[bend left=35] (qBa);
+    \draw[entold] (qBc) to[bend left=35] (qC);
+  \end{pgfonlayer}
+  \node[qb] at (qA) {}; \node[qb] at (qC) {};
+  \node[qb] at (qBa) {}; \node[qb] at (qBc) {};
+  \foreach \c in {qBa,qBc}{%
+    \draw[meas] ($(\c)+(-.18,-.18)$) -- ($(\c)+(.18,.18)$);
+    \draw[meas] ($(\c)+(-.18,.18)$) -- ($(\c)+(.18,-.18)$);}
+  % \node[font=\scriptsize, text=Xcol, above=1.5mm of B] {Bell meas.};
+}
+
+% <7> the long-range pair, B's memories empty again
+\only<9>{%
+  \node[slot] at (qBa) {}; \node[slot] at (qBc) {};
+  \begin{pgfonlayer}{ent}
+    \draw[ent] (qA) .. controls (2.8,1.9) and (5.6,1.9) .. (qC);
+  \end{pgfonlayer}
+  \node[qb] at (qA) {}; \node[qb] at (qC) {};}
+
+%%% ------------------------------------------- 3G story: all-photonic RGS
+% columns (all inside B's box, which spans x = 2.5 .. 5.9):
+%   2.68 photons arrived from A      5.72 photons arrived from C
+%   3.20 outer qubits, left half     5.20 outer qubits, right half
+%   3.80 inner qubits, left half     4.60 inner qubits, right half
+% rows: 1 -> +0.8, 2 -> 0, 3 -> -0.8, the same rows A and C store/send on.
+% Bell measurements on the outer qubits: half of them fail.
+%   left half : rows 1 and 3 succeed, row 2 fails
+%   right half: row 3 succeeds, rows 1 and 2 fail
+% the path therefore runs along row 3, successful on both halves
+\def\prow{-0.8}
+
+% \mcross{style}{x}{y} -- a measurement mark
+\def\mcross#1#2#3{%
+  \draw[line width=1pt,#1] ($(#2,#3)+(-.17,-.17)$) -- ($(#2,#3)+(.17,.17)$);
+  \draw[line width=1pt,#1] ($(#2,#3)+(-.17,.17)$) -- ($(#2,#3)+(.17,-.17)$);}
+
+% each end node holds ONE memory qubit, entangled with the three photons it
+% emits (one per arm of the RGS)
+\def\mA{-0.25} \def\mC{8.65}
+\def\ends{\node[qb] at (\mA,0) {}; \node[qb] at (\mC,0) {};}
+% \emitA{x}{rows} / \emitC{x}{rows} -- one end node's photons at abscissa x,
+% each still linked to the memory qubit that emitted it.  The row list is
+% explicit because C's top photon is LOST on the way to B.
+\def\emitA#1#2{\begin{pgfonlayer}{ent}
+  \foreach \y in #2{\draw[ent] (\mA,0) -- (#1,\y);}\end{pgfonlayer}
+  \foreach \y in #2{\node[pq] at (#1,\y) {};}}
+\def\emitC#1#2{\begin{pgfonlayer}{ent}
+  \foreach \y in #2{\draw[ent] (\mC,0) -- (#1,\y);}\end{pgfonlayer}
+  \foreach \y in #2{\node[pq] at (#1,\y) {};}}
+\def\emitted#1#2{\emitA{#1}{{0.8,0,-0.8}}\emitC{#2}{{0.8,0,-0.8}}}
+% \lostC -- C's top photon never reaches B: its link fades and it is crossed
+% out where it was lost on the channel
+\def\lostC{\begin{pgfonlayer}{ent}
+    \draw[entold] (\mC,0) -- (6.60,0.8);\end{pgfonlayer}
+  \mcross{Xcol}{6.60}{0.8}%
+ }
+
+% the RGS itself is \rgs{show outer}{left inner rows}{right inner rows},
+% defined in rgs_core.tex and shared with the stand-alone RGS slide
+
+% <6> the RGS sits in B; A and C hold three photons each
+\only<10>{\rgs{1}{{0.8,0,-0.8}}{{0.8,0,-0.8}}\emitted{0.42}{7.98}\ends}
+
+% <7> the photons travel down the channels
+\only<11>{\rgs{1}{{0.8,0,-0.8}}{{0.8,0,-0.8}}
+  \emitted{1.55}{6.85}
+  \foreach \y in {0.8,0,-0.8}{%
+    \draw[flight] (1.85,\y) -- (2.35,\y);
+    \draw[flight] (6.55,\y) -- (6.05,\y);}
+  \ends}
+
+% <8> Bell measurements between each arriving photon and an outer qubit
+\only<12>{\rgs{1}{{0.8,0,-0.8}}{{0.8,0,-0.8}}
+  \emitA{\LP}{{0.8,0,-0.8}}\emitC{\RP}{{0,-0.8}}\lostC\ends
+  \foreach \y in {0.8,0,-0.8}{%
+    \node[bsmok, minimum width=9.5mm, minimum height=5.5mm] at (2.94,\y) {};}
+  \foreach \y in {0,-0.8}{%
+    \node[bsmok, minimum width=9.5mm, minimum height=5.5mm] at (5.46,\y) {};}}
+
+% <9> the failed arms are marked; the successful ones carry entanglement
+\only<13>{\rgs{1}{{0.8,0,-0.8}}{{0.8,0,-0.8}}
+  \emitA{\LP}{{0.8,0,-0.8}}\emitC{\RP}{{0,-0.8}}\lostC\ends
+  \mcross{Xcol}{\RO}{0.8}
+  \foreach \y in {0.8,0,-0.8}{%
+    \node[bsmok, minimum width=9.5mm, minimum height=5.5mm] at (2.94,\y) {};}
+  \foreach \y in {0,-0.8}{%
+    \node[bsmok, minimum width=9.5mm, minimum height=5.5mm] at (5.46,\y) {};}
+  % the arms whose Bell measurement failed (the top right arm has no photon
+  % to measure at all)
+  \foreach \x/\y in {2.94/0, 5.46/0}{%
+    \node[bsmno, minimum width=9.5mm, minimum height=5.5mm] at (\x,\y) {};
+    \mcross{Xcol}{\x}{\y}}}
+
+% every qubit consumed by a measurement leaves its empty slot behind
+\only<14->{% the outer qubits (and the photons fused with them) are gone
+  \foreach \y in {0.8,0,-0.8}{%
+    \node[slot] at (\LO,\y) {}; \node[slot] at (\RO,\y) {};}}
+
+% <10> the inner qubits of the failed arms are measured in Z ...
+\only<14-15>{\rgs{0}{{0.8,0,-0.8}}{{0.8,0,-0.8}}
+  \begin{pgfonlayer}{ent}
+    % arms that succeeded: A (rows 1,3) and C (row 3) now share entanglement
+    % with the inner qubit of that arm
+    \draw[ent] (\mA,0) -- (\LI, 0.8);
+    \draw[ent] (\mA,0) -- (\LI,-0.8);
+    \draw[ent] (\mC,0) -- (\RI,-0.8);
+  \end{pgfonlayer}
+  % arms that failed: their inner qubit is measured in Z
+  \only<15>{\mcross{Xcol}{\LI}{0}\mcross{Xcol}{\RI}{0.8}\mcross{Xcol}{\RI}{0}}
+  \ends}
+
+\only<16->{% inner qubits of the three dead arms, measured in Z
+  \node[slot] at (\LI,0) {};
+  \node[slot] at (\RI,0.8) {}; \node[slot] at (\RI,0) {};}
+
+% <13-15> ... and gone; a path through the surviving inner qubits is chosen
+\only<16-18>{\rgs{0}{{0.8,-0.8}}{{-0.8}}
+  \begin{pgfonlayer}{ent}
+    \draw[ent] (\mA,0) -- (\LI,0.8);
+    \draw[ent] (\mA,0) -- (\LI,\prow);
+    \draw[ent] (\mC,0) -- (\RI,\prow);
+  \end{pgfonlayer}
+\only<17->{  
+  \draw[path] (\mA,0) -- (\LI,\prow) -- (\RI,\prow) -- (\mC,0);
+  }  
+  \only<18>{\mcross{Xcol}{\LI}{0.8}}
+\ends}
+
+\only<19->{% the inner qubit off the path, measured in Z
+  \node[slot] at (\LI,0.8) {};}
+
+% <16-17> the inner qubits off the path are measured in Z and removed
+\only<19-20>{\rgs{0}{{-0.8}}{{-0.8}}
+  \begin{pgfonlayer}{ent}
+    \draw[ent] (\mA,0) -- (\LI,\prow);
+    \draw[ent] (\mC,0) -- (\RI,\prow);
+  \end{pgfonlayer}
+  \draw[path] (\mA,0) -- (\LI,\prow) -- (\RI,\prow) -- (\mC,0);
+  % \mcross{Xcol}{\LI}{0.8}
+  \only<20>{\mcross{Ycol}{\LI}{\prow}\mcross{Ycol}{\RI}{\prow}
+  }
+  \ends}
+
+\only<21>{% the two inner qubits on the path, measured in X
+  \node[slot] at (\LI,\prow) {}; \node[slot] at (\RI,\prow) {};}
+
+% <18> the inner qubits on the path are measured in X: A and C are linked
+\only<21>{%
+  % \draw[half] (3.02,-1.06) rectangle (3.98,1.06);
+  % \draw[half] (4.42,-1.06) rectangle (5.38,1.06);
+  % \mcross{Ycol}{\LI}{\prow}\mcross{Ycol}{\RI}{\prow}
+  \begin{pgfonlayer}{ent}
+    \draw[ent] (\mA,0) to[bend left=50] (\mC,0);
+  \end{pgfonlayer}
+  \ends}
+
+%%% ------------------------------------------------------------- captions
+\node[tag] at (-1.5,2.7)
+  { \large
+  %   \only<3>{\textcolor{Vcol}{goal}}%
+  %  \only<4-9>{\textcolor{Vcol}{memory-based}}%
+  %  \only<10->{\textcolor{Vcol}{memoryless}}%
+  };
+
+% \node[capt, anchor=north] at (4.2,-2.5){%
+%   \only<3>{nodes and channels}%
+%   \only<4>{generation attempt: keep one half, send other half to $B$}%
+%   \only<5>{every pair stored in a quantum memory}%
+%   \only<6>{$B$ performs entanglement swapping}%
+%   \only<7>{one long-range pair $A$--$C$}};
+
+%%% --------------------------------------------------------------- legend
+\onslide<3->{
+  \begin{scope}[shift={(0.4,-3.75)}]
+    \node[qb] at (0,0) {};        \node[leg] at (0.25,0) {memory qubit};
+    \onslide<4->{\node[pq] at (3.1,0) {};      \node[leg] at (3.35,0) {flying qubit};}
+    \draw[ent] (6.5,0) -- (6.9,0);\node[leg] at (7.0,0) {entanglement};
+    \onslide<10->{\draw[path] (9.0,0) -- (9.4,0);\node[leg] at (9.5,0) {path};}
+  \end{scope}
+}
+\end{tikzpicture}

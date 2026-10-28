@@ -1,0 +1,27 @@
+% Minimal quantum-network topology: one repeater (B) forking out to three
+% end nodes (A on the left, C top-right, D bottom-right).
+% Only A, C carry the "end node" label; only B carries "repeater".
+% Palette from sections/macros-eulvec.tex (Vcol structure, Zcol channels).
+\begin{tikzpicture}[
+  qnode/.style = {circle, draw=Vcol, line width=1.1pt, fill=Vcol!10,
+                  minimum size=11mm, inner sep=0pt, font=\large},
+  rnode/.style = {qnode, draw=Acc, fill=Acc!18, line width=1.3pt},
+  chan/.style  = {Zcol, line width=1.4pt},
+  role/.style  = {font=\small, text=Vcol!80, align=center},
+  rrole/.style = {role, text=Acc!55!black},
+]
+
+\node[qnode] (A) at (0,0)      {$A$};
+\node[rnode] (B) at (4.2,0)    {$B$};
+\node[qnode] (C) at (8.4,1.7)  {$C$};
+\node[qnode] (D) at (8.4,-1.7) {$D$};
+
+\draw[chan] (A) -- (B);
+\draw[chan] (B) -- (C);
+\draw[chan] (B) -- (D);
+
+\node[role,  below=3mm of A] {end node};
+\node[rrole, below=3mm of B] {repeater};
+\node[role,  right=3mm of C, anchor=west] {end node};
+\node[role,  right=3mm of D, anchor=west] {end node};
+\end{tikzpicture}

@@ -1,0 +1,99 @@
+% ---------------------------------------------------------------------------
+% Measuring a Pauli seen as +X by the graph state at v=2, on the path 1-2-3-4,
+% pivoting on the min-degree neighbour b=1 (node a in the macros).
+% Top row    : standard graph-only rule -- tau_b tau_v tau_b, then delete v.
+% Bottom row : framed graph state -- R_b, R_v, then delete v (outcome +1,
+%              no canonicalisation), with the vertex basis printed at every
+%              vertex and the dual basis of v (in [...]) stacked on top:
+%              T_v is its second letter.  Accent-coloured
+%              bases are the ones that have left (+Z,+X): these are the side
+%              effects the frame carries and a bare graph cannot.
+% gold = edge added at this step, red dashed = edge removed at this step.
+% Each row is scaled on its own so the two panel sizes stay legible; the
+% headings and byproduct lines sit outside the boxes and keep their font.
+% ---------------------------------------------------------------------------
+{\small
+% basis labels: \bl unchanged, \ba carrying a side effect (same style, no highlight)
+\newcommand{\bl}[1]{{\large\color{Vcol!75}$#1$}}
+\newcommand{\ba}[1]{\bl{#1}}
+% bare panel (no frame data): #1 = edges
+\newcommand{\sqg}[1]{%
+  \begin{tikzpicture}[baseline={([yshift=-3.6pt]0,0.5)},x=1.6cm,y=1.35cm,gv/.append style={font=\large,minimum size=8mm},
+      dele/.style={Xcol,line width=2pt,dashed}]
+    \node[xv] (v) at (0,1) {$2$};
+    \node[gv] (a) at (0,0) {$1$};
+    \node[gv] (b) at (1,1) {$3$};
+    \node[gv] (c) at (1,0) {$4$};
+    #1
+  \end{tikzpicture}}
+\newcommand{\sqgd}[1]{%
+  \begin{tikzpicture}[baseline={([yshift=-3.6pt]0,0.5)},x=1.6cm,y=1.35cm,gv/.append style={font=\large,minimum size=8mm}]
+    \node[gv] (a) at (0,0) {$1$};
+    \node[gv] (b) at (1,1) {$3$};
+    \node[gv] (c) at (1,0) {$4$};
+    #1
+  \end{tikzpicture}}
+% framed panel: #1..#4 = bases at v,a,b,c ; #5 = edges ; #6 = tag beside v ;
+%               #7 = dual basis of v (stacked above its vertex basis)
+\newcommand{\sqgf}[7]{%
+  \begin{tikzpicture}[baseline={([yshift=-3.6pt]0,0.5)},x=1.8cm,y=1.35cm,gv/.append style={font=\large,minimum size=8mm},
+      dele/.style={Xcol,line width=2pt,dashed}]
+    \node[xv,label={[label distance=-2pt,align=center]above:#7\\[3pt]#1}] (v) at (0,1) {$2$};
+    \node[gv,label={[label distance=-2pt]below:#2}] (a) at (0,0) {$1$};
+    \node[gv,label={[label distance=-2pt]above:#3}] (b) at (1,1) {$3$};
+    \node[gv,label={[label distance=-2pt]below:#4}] (c) at (1,0) {$4$};
+    #5
+    \node[font=\large,text=Xcol,anchor=south] at (0,2.2) {#6};
+  \end{tikzpicture}}
+\newcommand{\sqgfd}[4]{%
+  \begin{tikzpicture}[baseline={([yshift=-3.6pt]0,0.5)},x=1.8cm,y=1.35cm,gv/.append style={font=\large,minimum size=8mm}]
+    \node[gv,label={[label distance=-2pt]below:#1}] (a) at (0,0) {$1$};
+    \node[gv,label={[label distance=-2pt]above:#2}] (b) at (1,1) {$3$};
+    \node[gv,label={[label distance=-2pt]below:#3}] (c) at (1,0) {$4$};
+    #4
+  \end{tikzpicture}}
+% arrow with enlarged label
+\newcommand{\bigarrowlbl}[2][]{{\Large$\xrightarrow[\ \textstyle #1\ ]{\ \textstyle #2\ }$}}
+% the graphs, shared by both rows
+\newcommand{\ezero}{\draw[ge](a)--(v);\draw[ge](v)--(b);\draw[ge](b)--(c);}
+% tau_1 on the leaf 1 leaves the edges unchanged
+\newcommand{\eone} {\ezero}
+\newcommand{\etwo} {\draw[ge](a)--(v);\draw[ge](v)--(b);\draw[ge](b)--(c);
+                    \draw[ge](a)--(b);}
+\newcommand{\ethree}{\draw[dele](v)--(b);\draw[ge](a)--(v);\draw[ge](b)--(c);
+                     \draw[ge](a)--(b);}
+\newcommand{\efinal}{\draw[ge](a)--(b);\draw[ge](b)--(c);}
+%
+\setlength{\tabcolsep}{2pt}
+% \noindent{\color{Vcol}\textbf{Graph state}}\par\medskip
+
+% graph-state row (a) removed: never referenced on its own
+% \noindent\parbox[c]{\dimexpr\linewidth-2em}{\resizebox{\linewidth}{!}{%
+% \begin{tabular}{@{}c@{}c@{}c@{}c@{}c@{}c@{}c@{}c@{}c@{}}
+% \sqg{\ezero} & \bigarrowlbl{\localComp{1}} & \sqg{\eone}
+%   & \bigarrowlbl{\localComp{2}} & \sqg{\etwo}
+%   & \bigarrowlbl{\localComp{1}} & \sqg{\ethree}
+%   & \bigarrowlbl{\mathrm{del}\,2} & \sqgd{\efinal}
+% \end{tabular}}}\hfill\parbox[c]{1.6em}{\centering(a)}\par\smallskip
+
+% % \noindent{\color{Vcol}\footnotesize byproduct: untracked}\par
+% \bigskip
+
+% \noindent{\color{Vcol}\textbf{Eulerian frame} }\par\medskip
+
+\noindent\resizebox{\linewidth}{!}{%
+\begin{tabular}{@{}c@{}c@{}c@{}c@{}c@{}c@{}c@{}}
+\sqgf{\bl{(Z,X)}}{\bl{(Z,X)}}{\bl{(Z,X)}}{\bl{(Z,X)}}{\ezero}{$\transPauli_2=+X$}%
+      {\bl{[Z,X]}}
+  & \bigarrowlbl{\reframing{1}}
+  & \sqgf{\ba{(Z,Y)}}{\ba{(Y,X)}}{\bl{(Z,X)}}{\bl{(Z,X)}}{\eone}{$\transPauli_2=-Y$}%
+      {\ba{[Z,-Y]}}
+  & \bigarrowlbl{\reframing{2}}
+  & \sqgf{\ba{(-X,Y)}}{\ba{(Y,-Z)}}{\ba{(Z,Y)}}{\bl{(Z,X)}}{\etwo}{$\transPauli_2=-Z$}%
+      {\ba{[-Y,-Z]}}
+  & \bigarrowlbl{\mathrm{del}\,2}
+  & \sqgfd{\ba{(Y,Z)}}{\ba{(Z,-Y)}}{\bl{(Z,X)}}{\efinal}
+\end{tabular}}\par\smallskip
+
+% \noindent{\color{Vcol}\footnotesize byproduct: $\zeta=1$ flips $\wC{}$ at $a$, $b$ and $c$}%
+}

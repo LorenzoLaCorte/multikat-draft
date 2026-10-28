@@ -1,0 +1,57 @@
+% X measurement = pivot along an edge (v,b): three local complementations
+% tau_b, tau_v, tau_b, then delete v. Illustrated on the path a-v-b-c.
+% Vertices at square corners: a=(0,0), v=(0,1), b=(1,1), c=(1,0).
+% gold = edge added at this step, red = edge removed at this step.
+%
+% ---- G0: a-v-b-c ----
+\begin{tikzpicture}[baseline=(current bounding box.center),scale=0.65,
+    dele/.style={Xcol,line width=1.3pt}]
+  \node[xv,scale=.62] (v) at (0,1) {$v$};
+  \node[gv,scale=.62] (a) at (0,0) {$a$};
+  \node[gv,scale=.62] (b) at (1,1) {$b$};
+  \node[gv,scale=.62] (c) at (1,0) {$c$};
+  \draw[ge] (a)--(v); \draw[ge] (v)--(b); \draw[ge] (b)--(c);
+\end{tikzpicture}%
+\;$\xrightarrow{\tau_b}$\;%
+% ---- G1: + v-c ----
+\begin{tikzpicture}[baseline=(current bounding box.center),scale=0.65,
+    dele/.style={Xcol,line width=1.3pt}]
+  \node[xv,scale=.62] (v) at (0,1) {$v$};
+  \node[gv,scale=.62] (a) at (0,0) {$a$};
+  \node[gv,scale=.62] (b) at (1,1) {$b$};
+  \node[gv,scale=.62] (c) at (1,0) {$c$};
+  \draw[ge] (a)--(v); \draw[ge] (v)--(b); \draw[ge] (b)--(c);
+  \draw[newe] (v)--(c);
+\end{tikzpicture}%
+\;$\xrightarrow{\tau_v}$\;%
+% ---- G2: + a-b, + a-c, - b-c ----
+\begin{tikzpicture}[baseline=(current bounding box.center),scale=0.65,
+    dele/.style={Xcol,line width=1.3pt}]
+  \node[xv,scale=.62] (v) at (0,1) {$v$};
+  \node[gv,scale=.62] (a) at (0,0) {$a$};
+  \node[gv,scale=.62] (b) at (1,1) {$b$};
+  \node[gv,scale=.62] (c) at (1,0) {$c$};
+  \draw[dele] (b)--(c);
+  \draw[ge] (a)--(v); \draw[ge] (v)--(b); \draw[ge] (v)--(c);
+  \draw[newe] (a)--(b); \draw[newe] (a)--(c);
+\end{tikzpicture}%
+\;$\xrightarrow{\tau_b}$\;%
+% ---- G3: - a-v ----
+\begin{tikzpicture}[baseline=(current bounding box.center),scale=0.65,
+    dele/.style={Xcol,line width=1.3pt}]
+  \node[xv,scale=.62] (v) at (0,1) {$v$};
+  \node[gv,scale=.62] (a) at (0,0) {$a$};
+  \node[gv,scale=.62] (b) at (1,1) {$b$};
+  \node[gv,scale=.62] (c) at (1,0) {$c$};
+  \draw[dele] (a)--(v);
+  \draw[ge] (v)--(b); \draw[ge] (v)--(c);
+  \draw[ge] (a)--(b); \draw[ge] (a)--(c);
+\end{tikzpicture}%
+\;$\xrightarrow{\mathrm{del}\;v}$\;%
+% ---- G4: delete v, leaving b-a-c ----
+\begin{tikzpicture}[baseline=(current bounding box.center),scale=0.65]
+  \node[gv,scale=.62] (a) at (0,0) {$a$};
+  \node[gv,scale=.62] (b) at (1,1) {$b$};
+  \node[gv,scale=.62] (c) at (1,0) {$c$};
+  \draw[ge] (a)--(b); \draw[ge] (a)--(c);
+\end{tikzpicture}

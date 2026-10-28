@@ -1,0 +1,35 @@
+% ---------------------------------------------------------------------------
+% Physical CZ_{vw} on the Eulerian frame.
+% w has Eulerian letter -Y (e.g. after a physical sqrt(X) on w), so the rule
+% first re-frames at w: R_w complements N(w)={a,b} (adds a-b) and moves
+%   w: (-Y,X) -> (i X (-Y), X) = (Z,X),   a,b: (Z,X) -> (Z, i X Z) = (Z,Y).
+% Both Eulerian letters are now +Z, so CZ only toggles the edge v-w.
+% gold = edge added at this step; underlined = vertex basis changed.
+% ---------------------------------------------------------------------------
+{\footnotesize
+% panel: #1..#4 = bases at v,w,a,b ; #5 = edges
+\newcommand{\czp}[5]{%
+  \begin{tikzpicture}[baseline={(0,0.8)},x=1cm,y=1cm,
+      gv/.append style={minimum size=6mm,font=\footnotesize}]
+    \node[gv,label={[label distance=-1pt]right:$#1$}] (v) at (0.75,1.75) {$1$};
+    \node[gv,frv,label={[label distance=-1pt]right:$#2$}] (w) at (0.75,0.8) {$2$};
+    \node[gv,label={[label distance=-1pt]below:$#3$}] (a) at (0,0) {$3$};
+    \node[gv,label={[label distance=-1pt]below:$#4$}] (b) at (1.5,0) {$4$};
+    #5
+  \end{tikzpicture}}
+% arrow nudged right (net width unchanged) to centre it between the
+% basis label on the left and vertex 2 of the next panel
+\newcommand{\czarr}[2][3.5mm]{\hspace{#1}{\normalsize$\xrightarrow{\ \textstyle #2\ }$}\hspace{-#1}\hspace{-3mm}}
+\setlength{\tabcolsep}{1pt}%
+\scalebox{0.84}{% same scale as lc_def
+\begin{tabular}{@{}c@{}c@{}c@{}c@{}c@{}}
+\czp{(\cZ,\cX)}{(-\cY,\cX)}{(\cZ,\cX)}{(\cZ,\cX)}%
+    {\draw[ge](w)--(a);\draw[ge](w)--(b);}
+  & \czarr[3mm]{\reframing{2}}
+  & \czp{(\cZ,\cX)}{\chp{(\cZ,\cX)}}{\chp{(\cZ,\cY)}}{\chp{(\cZ,\cY)}}%
+    {\draw[ge](w)--(a);\draw[ge](w)--(b);\draw[ge](a)--(b);}
+  & \czarr{\text{toggle (1,2)}}
+  & \czp{(\cZ,\cX)}{(\cZ,\cX)}{(\cZ,\cY)}{(\cZ,\cY)}%
+    {\draw[ge](w)--(a);\draw[ge](w)--(b);\draw[ge](a)--(b);\draw[ge](v)--(w);}
+\end{tabular}}%
+}

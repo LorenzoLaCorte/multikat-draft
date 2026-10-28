@@ -1,0 +1,53 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{swnotes}[2023-12-13 Customized todonotes]
+
+% required by a lot of formats otherwise baloons are squeezed
+\setlength{\marginparwidth}{1.2cm}
+
+\makeatletter
+
+\DeclareOption{disable}{\newcommand{\swnotes@disable}{}}
+\DeclareOption{onlyowner}{\newcommand{\swnotes@onlyowner}{}}
+\DeclareOption{footnotesize}{\PassOptionsToPackage{textsize=footnotesize}{todonotes}}
+\DeclareOption{scriptsize}{\PassOptionsToPackage{textsize=scriptsize}{todonotes}}
+\ProcessOptions\relax
+
+\RequirePackage{etoolbox}
+\RequirePackage{todonotes}
+\let\todonotes@todo=\todo
+\undef\todo
+\RequirePackage{marginnote}
+
+\newcommand{\swnotes@ifinsidefloat}[2]{\@ifundefined{@captype}{#2}{#1}}
+\newcommand{\swnotes@content}[2]{\ifdefmacro{\swnotes@onlyowner}{#2}{#2: #1}}
+\newcommand{\swnotes@draw@margin}[3]{\marginnote{\todonotes@todo[color=#3,inline]{\swnotes@content{#1}{#2}}}}
+\newcommand{\swnotes@draw@todo}[3]{\todonotes@todo[color=#3]{\swnotes@content{#1}{#2}}}
+
+%% - text
+%% - author
+%% - color
+\newrobustcmd{\swnotes@draw}[3]{{%
+    \swnotes@ifinsidefloat{%
+        \swnotes@draw@margin{#1}{#2}{#3}%
+    }{%
+        \ifbool{mmode}{%
+            \swnotes@draw@margin{#1}{#2}{#3}%
+        }{%
+            \swnotes@draw@todo{#1}{#2}{#3}%
+        }%
+    }}}
+
+
+\newrobustcmd{\annote}[3]{%
+    \ifdefmacro{\swnotes@disable}{%
+    }{%
+        \swnotes@draw{#1}{#2}{#3}%
+    }}
+
+\newrobustcmd{\annoteinline}[3]{%
+    \ifdefmacro{\swnotes@disable}{%
+    }{%
+        \swnotes@draw{#1}{#2}{#3}%
+    }}
+
+\makeatother

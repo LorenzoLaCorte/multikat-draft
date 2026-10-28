@@ -1,0 +1,52 @@
+% !TEX root = ../IEEE_main.tex
+
+% Def. QNs
+\emph{\Acp{qn}} are built for the goal of distributing entanglement across separate interconnected nodes.
+%
+% Foundational QNs (BPs key resource)
+Foundational \acp{qn}~\cite{zhu2025remote} focus on the distribution of \emph{\acp{bp}}, i.e., a pair of \ale{maximally} entangled qubits. \Acp{bp} are a key resource in \acp{qn} as they are used in a wide range of applications, such as quantum key distribution~\cite{} and distributed quantum computing~\cite{caleffi2024dqcsurvey}.\alenote{more/change applications, e.g. change/cut distrib. QC}
+%
+\Ac{bp} distribution is not a trivial task, as it has to deal with channel losses that grow exponentially with the distance of the nodes and qubit decoherence. Quantum repeaters have been devised to address these losses, but they typically require quantum memories, which are challenging experimental hardware~\cite{}.
+
+% Modern QNs (e.g. all photonic) use stabilizer (graph?) states
+Modern \acp{qn}~\cite{munro2012,azuma2015_all-photonic,naphan2026bridging,niu2023_all-photonic} leverage multipartite entangled states, namely \emph{stabilizer states}, to introduce redundancy in the distribution protocol and facilitate the distribution of \acp{bp} without requiring quantum memories.
+%
+Multipartite entanglement is a key resource for applications of quantum computation and communication,
+such as multipartite quantum key distribution~\cite{epping2017multipartiteqkd,murta2020cka}, 
+blind quantum computing~\cite{} 
+and distributed quantum computing~\cite{caleffi2024dqcsurvey}.\llc{repeated}
+Furthermore, multipartite states are the core of \emph{quantum error correction}, which provides a path towards fault-tolerant quantum technologies by encoding information redundantly across larger quantum systems~\cite{nielsen2010quantum}.
+%
+For instance, all-photonic entanglement distribution protocols~\cite{azuma2015_all-photonic,naphan2026bridging} produce intermediate multipartite states and \emph{fuse}~\cite{loebl2025bellfusion} them into larger quantum states~\cite{fischer2020distributinggraph}.
+In order to specify and analyze these protocols, one % \ale{a user?} 
+must be able to efficiently describe stabilizer states and operations on them.
+%
+% BPs can also be used for graph state distribution (Ale: possibly useless remark)
+%
+To achieve a tractable representation we have to restrict its scope to some special class of multipartite states. 
+%
+One such class is the stabilizer formalism~\cite{gottesman1997stabilizer}, a 
+family of quantum states and operations with an efficient mathematical description~\cite{vandennest2004graphical,aaronson2004improved,anders2006fastsimulation,hu2022improvedgraph}.
+%
+The stabilizer formalism is closed under Clifford gates and Pauli measurements and its states, called \emph{stabilizer states}, 
+are commonly described using a graph $G$ where vertices represent qubits and edges represent entanglement among them. $G$ alone can only represent a subset of stabilizer states called \emph{graph states}, which are equivalent to stabilizer states only up to local Clifford operations. 
+\alenote{improve this paragraph}
+
+\ale{... work towards LC+iso}
+
+\subsection{Contributions}
+\label{sec:contributions}
+\input{sections/contribution}
+
+\subsection{Related Work}
+\label{sec:relwork}
+\input{sections/relwork}
+
+% \subsection{Outline}
+% The rest of the paper is organized as follows.
+% \Cref{sec:relwork} ...
+% \Cref{sec:} ...
+% \Cref{sec:...} ...
+% \Cref{sec:outlook} concludes and discusses future directions.
+
+%% if short on space maybe replace "Section" with "$" in the \cref ? Are we even allowed?

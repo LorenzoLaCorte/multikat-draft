@@ -1,0 +1,18 @@
+% Z measurement on triangle (v,a,b): delete v and its incident edges; a-b survives.
+% before --> after
+\begin{tikzpicture}[baseline=(current bounding box.center),scale=0.7,
+    dele/.style={Xcol,line width=1.3pt}]
+  \node[zv,scale=.85] (v) at (0.6,1)   {$v$};
+  \node[gv,scale=.85] (a) at (0,0)     {$a$};
+  \node[gv,scale=.85] (b) at (1.2,0)   {$b$};
+  \draw[dele] (v)--(a);
+  \draw[dele] (v)--(b);
+  \draw[ge]   (a)--(b);
+  \node[Xcol,font=\Large] at (v) {$\times$};
+\end{tikzpicture}%
+\;$\xrightarrow{\ \mathrm{delete}\;v\ }$\;%
+\begin{tikzpicture}[baseline=(current bounding box.center),scale=0.7]
+  \node[gv,scale=.85] (a) at (0,0)   {$a$};
+  \node[gv,scale=.85] (b) at (1.2,0) {$b$};
+  \draw[ge] (a)--(b);
+\end{tikzpicture}

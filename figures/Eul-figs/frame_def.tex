@@ -1,0 +1,61 @@
+% ---------------------------------------------------------------------------
+% Eulerian frame of a framed graph state (adapted from graphStates/frame_readout).
+% Running example: path 1-2-3 with frame L = (H, S, X).
+% Each vertex stores only its vertex basis (w^N_v, w^C_v) = (L Z L^dag, L X L^dag);
+% the frame L itself is never stored.
+% ---------------------------------------------------------------------------
+\begin{tikzpicture}[font=\small,x=1cm,y=1cm,
+    bigv/.style={gv,minimum size=8mm,font=\small},
+    rlab/.style={anchor=east,text=Vcol},
+    vb/.style  ={inner sep=3pt},
+  ]
+  \def\cA{0}\def\cB{2.2}\def\cC{4.4}
+
+  % ---- graph ----------------------------------------------------------------
+  \node[bigv] (v1) at (\cA,0) {$1$};
+  \node[bigv] (v2) at (\cB,0) {$2$};
+  \node[bigv] (v3) at (\cC,0) {$3$};
+  \draw[ge] (v1)--(v2)--(v3);
+  \node[rlab] at (-0.8,0) {$G$};
+
+  % ---- frame (not stored) ---------------------------------------------------
+  \node[rlab] at (-0.8,0.85) {$L_v$};
+  \node[text=Vcol!70] at (\cA,0.85) {$H$};
+  \node[text=Vcol!70] at (\cB,0.85) {$S$};
+  \node[text=Vcol!70] at (\cC,0.85) {$X$};
+
+  % ---- vertex bases (stored) ------------------------------------------------
+  \node[rlab] at (-1.0,-0.95) {$\vertexBasis{v}$};
+  \node[vb] at (\cA,-0.95) {$(\cX,\cZ)$};
+  \node[vb] at (\cB,-0.95) {$(\cZ,\cY)$};
+  \node[vb] at (\cC,-0.95) {$(-\cZ,\cX)$};
+  \node at (\cC+1.3,0) {(a)};
+
+  % ---- separator ------------------------------------------------------------
+  \draw[dashed,gray!40] (-1.9,-1.35) -- (\cC+1.6,-1.35);
+
+  \begin{scope}[yshift=-2.5cm]
+      % ---- graph ---------------------------------------------
+      \node[bigv] (v1) at (\cA,0) {$1$};
+      \node[bigv] (v2) at (\cB,0) {$2$};
+      \node[bigv] (v3) at (\cC,0) {$3$};
+      \draw[ge] (v1)--(v2)--(v3);
+      \node[rlab] at (-0.8,0) {$G$};
+    
+      % ---- frame (not stored) -------------------------------
+      \node[rlab] at (-0.8,0.85) {$L_v$};
+      \node[text=Vcol!70] at (\cA,0.85) {$H$};
+      \node[text=Vcol!70] at (\cB,0.85) {$S$};
+      \node[text=Vcol!70] at (\cC,0.85) {$HX$};
+    
+      % ---- vertex bases (stored) -------------------------------
+      \node[rlab] at (-1.0,-0.95) {$\vertexBasis{v}$};
+      \node[vb] at (\cA,-0.95) {$(\cX,\cZ)$};
+      \node[vb] at (\cB,-0.95) {$(\cZ,\cY)$};
+      \node[vb] at (\cC,-0.95) {$(-\cX,\cZ)$};
+      \node at (\cC+1.3,0) {(b)};
+  \end{scope}
+
+  % \node[text=Vcol,font=\footnotesize] at (\cB,-1.75)
+  %     {$\vertexBasis{v} = (L_vZL_v^\dagger,\;L_vXL_v^\dagger)$};
+\end{tikzpicture}

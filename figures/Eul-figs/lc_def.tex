@@ -1,0 +1,43 @@
+% ---------------------------------------------------------------------------
+% Local complementation at v, two equivalent implementations.
+%   centre : graph state |G>, trivial frame (Z,X) everywhere
+%   left   : local Cliffords U_v = (HSH)_v (x) S^dag_{a,b,c}
+%            -> same graph, v: (-Y,X), neighbours: (Z,-Y)
+%   right  : tau_v toggles edges in N(v)={a,b,c}
+%            -> (a,b) removed, (a,c),(b,c) added, trivial frame
+% added edges drawn plain; removed edge (1,2) is not drawn.
+% ---------------------------------------------------------------------------
+{\footnotesize
+% panel: #1..#4 = bases at v,a,b,c ; #5 = edges ; #6 = panel caption
+\newcommand{\lcp}[6]{%
+  \begin{tikzpicture}[baseline={(0,0)},x=1cm,y=1cm,
+      gv/.append style={minimum size=6mm,font=\footnotesize},
+      dele/.style={Xcol,line width=1.3pt,dashed}]
+    \node[gv,frv,label={[label distance=-1pt]below:$#1$}] (v) at (0,0) {$4$};
+    \node[gv,label={[label distance=-1pt]below:$#2$}] (a) at (-1.2,-0.75) {$1$};
+    \node[gv,label={[label distance=-1pt]below:$#3$}] (b) at (1.2,-0.75) {$2$};
+    \node[gv,label={[label distance=-1pt]above:$#4$}] (c) at (0,1.05) {$3$};
+    \begin{pgfonlayer}{background}
+    \draw[ge](v)--(a);\draw[ge](v)--(b);\draw[ge](v)--(c);
+    #5
+    \end{pgfonlayer}
+    \node[text=Vcol,align=center] at (0,-1.6) {#6};
+  \end{tikzpicture}}
+% arrows overlap the empty space beside vertex 4 of the adjacent panels
+\newcommand{\lcarr}[1]{\hspace{-\lcov}{\normalsize$\xrightarrow{\ \textstyle #1\ }$}\hspace{-\lcov}}
+\newcommand{\lcarl}[1]{\hspace{-\lcov}{\normalsize$\xleftarrow{\ \textstyle #1\ }$}\hspace{-\lcov}}
+\newlength{\lcov}\setlength{\lcov}{4mm}
+\setlength{\tabcolsep}{1pt}%
+\scalebox{0.84}{% same scale as cz_rule
+\begin{tabular}{@{}c@{}c@{}c@{}c@{}c@{}}
+\lcp{\chp{(-\cY,\cX)}}{\chp{(\cZ,-\cY)}}{\chp{(\cZ,-\cY)}}{\chp{(\cZ,-\cY)}}%
+    {\draw[ge](a)--(b);}{}
+  & \lcarl{\lcUnitary{4}}
+  & \lcp{(\cZ,\cX)}{(\cZ,\cX)}{(\cZ,\cX)}{(\cZ,\cX)}%
+    {\draw[ge](a)--(b);}{}
+  & \lcarr{\localComp{4}}
+  & \lcp{(\cZ,\cX)}{(\cZ,\cX)}{(\cZ,\cX)}{(\cZ,\cX)}%
+    {\draw[ge](a)--(c);\draw[ge](b)--(c);}%
+    {}
+\end{tabular}}%
+}

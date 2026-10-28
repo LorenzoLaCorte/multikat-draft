@@ -1,0 +1,1300 @@
+% !TEX program = pdflatex
+% Slide template for the paper-direction discussion.
+% Grey [bracketed] text marks placeholders; figures are drawn with the shared
+% TikZ styles of macros.tex.
+\documentclass[aspectratio=169,11pt]{beamer}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb,bm}
+\usepackage{braket}
+\usepackage{booktabs}
+\usepackage{tikz}
+\input{macros}
+
+%% ---------------------------------------------------------------------------
+%% Look
+%% ---------------------------------------------------------------------------
+\usetheme{default}
+\usefonttheme{professionalfonts}
+\setbeamertemplate{navigation symbols}{}
+\setbeamercolor{frametitle}{fg=usiblue}
+\setbeamercolor{title}{fg=usiblue}
+\setbeamercolor{structure}{fg=usiblue}
+\setbeamercolor{normal text}{fg=Vcol!90!black}
+\setbeamerfont{frametitle}{series=\bfseries,size=\Large}
+\setbeamerfont{title}{series=\bfseries,size=\huge}
+\setbeamertemplate{itemize item}{\textcolor{usiblue}{\rule[.25ex]{.9ex}{.9ex}}}
+\setbeamertemplate{footline}{\hfill\textcolor{Vcol!60}{\footnotesize\insertframenumber\,/\,\inserttotalframenumber}\hspace{4mm}\vspace{3mm}}
+
+%% ---------------------------------------------------------------------------
+%% Slide-only macros and styles
+%% ---------------------------------------------------------------------------
+\newcommand{\ph}[1]{\textcolor{Vcol!55}{[#1]}}          % placeholder text
+\newcommand{\PCQ}{\texttt{PCQ}}                          % Stim's Pauli-controlled gate
+\newcommand{\cl}[1]{\par\smallskip{\small #1}}           % one-line caption under a picture
+
+\tikzset{
+  vbl/.style  ={font=\scriptsize,inner sep=.5pt,text=Vcol},  % vertex-basis label
+  err/.style  ={star,star points=7,star point ratio=2,draw=#1,fill=#1!35,
+                line width=.6pt,inner sep=0pt,minimum size=3.6mm},
+  wire/.style ={Vcol,line width=.7pt},
+  op/.style   ={rectangle,draw=Vcol,fill=Vcol!14,line width=.6pt,
+                minimum width=3mm,minimum height=3mm,inner sep=0pt},
+  pcor/.style ={rectangle,draw=Zcol,fill=Zcol!22,line width=.6pt,
+                minimum width=2.2mm,minimum height=2.2mm,inner sep=0pt},
+  ccor/.style ={rectangle,draw=Acc,fill=Acc!40,line width=.8pt,
+                minimum width=3mm,minimum height=3mm,inner sep=0pt},
+  cdot/.style ={circle,fill=Vcol,inner sep=0pt,minimum size=1.6mm},
+  cls/.style  ={Acc!80!black,double,double distance=.8pt,line width=.5pt},
+  panel/.style={draw=Vcol!30,rounded corners=3pt,fill=Vcol!3,inner sep=5pt},
+  % one end of a Pauli-controlled gate, in the colour #1 of its Pauli letter
+  pend/.style ={rectangle,draw=#1,fill=#1!15,line width=.8pt,minimum size=4.6mm,inner sep=0pt,font=\small},
+  pends/.style={pend=#1,line width=.6pt,minimum size=3.2mm,font=\scriptsize},
+}
+% vertex basis (w^N, w^C) written next to a vertex: \vb[side]{vertex}{w^N}{w^C}
+\newcommand{\vb}[4][above]{\node[vbl,#1=.5pt of #2] {$(#3,#4)$};}
+\newcommand{\vbI}[2][above]{\vb[#1]{#2}{\cZ}{\cX}}   % identity
+\newcommand{\vbH}[2][above]{\vb[#1]{#2}{\cX}{\cZ}}   % Hadamard
+\newcommand{\vbN}[2][above]{\vb[#1]{#2}{\cZ}{\cY}}   % neighbour of a re-framed vertex
+\newcommand{\vbR}[2][above]{\vb[#1]{#2}{\cY}{\cX}}   % re-framed vertex
+% two-qubit gate between wires #2 and #3 at x = #1
+\newcommand{\twoq}[3]{\draw[wire] (#1,#2) -- (#1,#3); \node[cdot] at (#1,#2) {}; \node[cdot] at (#1,#3) {};}
+% three horizontal wires of length #1 at y = 0, .5, 1
+\newcommand{\wires}[1]{\foreach \y in {0,.5,1} \draw[wire] (0,\y) -- (#1,\y);}
+
+% path a-v-b-c on a square; #1 = style of v
+\newcommand{\startgraph}[1]{%
+  \node[gv] (a) at (0,1.2) {$a$}; \node[#1] (v) at (0,0) {$v$};
+  \node[gv] (b) at (1.2,0) {$b$}; \node[gv] (c) at (1.2,1.2) {$c$};}
+% empty plot: #1 = x label, #2 = y label
+\newcommand{\emptyaxes}[2]{%
+  \draw[axarr,Vcol] (0,0) -- (5,0) node[below left] {\small #1};
+  \draw[axarr,Vcol] (0,0) -- (0,3.3) node[above right] {\small #2};
+  \node[text=Vcol!35] at (2.5,1.6) {\Huge ?};}
+
+% Eulerian letter of a vertex basis, highlighted
+\newcommand{\eul}[1]{{\setlength{\fboxsep}{1pt}\colorbox{Acc!28}{$#1$}}}
+% one small \PCQ{} gate: #1 = x shift, #2/#3 = colour and letter on v, #4/#5 = on w, #6 = caption
+\newcommand{\pcqcase}[6]{%
+  \begin{scope}[xshift=#1]
+    \draw[wire] (0,.5) -- (.9,.5); \draw[wire] (0,0) -- (.9,0); \draw[wire] (.45,0) -- (.45,.5);
+    \node[pends=#2] at (.45,.5) {$#3$}; \node[pends=#4] at (.45,0) {$#5$};
+    \node[cpt] at (1.05,.25) {#6};
+  \end{scope}}
+
+% measurement at (#1,#2): dial and needle, box in colour #3, measured Pauli #4 as a small index
+\newcommand{\meter}[4]{%
+  \node[draw=#3,fill=#3!12,line width=.7pt,minimum width=4.4mm,minimum height=2.8mm,inner sep=0pt] (mtr) at (#1,#2) {};
+  \draw[#3,line width=.5pt] ([shift={(-1.2mm,-.7mm)}]mtr.center) arc[start angle=180,end angle=0,radius=1.2mm];
+  \draw[#3,line width=.5pt] ([yshift=-.7mm]mtr.center) -- ++(55:1.9mm);
+  \node[font=\tiny,inner sep=.3pt,anchor=west,text=#3] at ([xshift=.2mm]mtr.east) {$#4$};}
+
+%% -- LC + relabelling part (notation of LC_isomorph.tex) ---------------------
+\newcommand{\lcsim}{\sim_{\LC}}                   % labelled LC-equivalence
+\newcommand{\isosim}{\cong}                       % isomorphism (relabelling)
+\newcommand{\lcisosim}{\approx}                   % LC-equivalence up to relabelling
+\newcommand{\Orb}{\mathcal{O}}                    % labelled LC orbit
+\newcommand{\cert}{\operatorname{cert}}           % canonical form of a shape
+\newcommand{\can}{\operatorname{can}}             % graph with that canonical form
+\newcommand{\crep}{\operatorname{rep}^{\ast}}     % LC+iso representative
+% four qubits on a unit square, named by their labels #1..#4 (clockwise from top left)
+\newcommand{\sqfour}[4]{%
+  \node[gvs] (#1) at (0,1) {$#1$}; \node[gvs] (#2) at (1,1) {$#2$};
+  \node[gvs] (#3) at (1,0) {$#3$}; \node[gvs] (#4) at (0,0) {$#4$};}
+
+% 3|3 split panels: six qubits of one panel: #1..#6 = styles of a c d (above the split) and b f e (below)
+\newcommand{\sixsplit}[6]{%
+  \node[#1] (a) at (0,1.5) {}; \node[#2] (c) at (1.5,1.5) {}; \node[#3] (d) at (3,1.5) {};
+  \node[#4] (b) at (0,0) {};   \node[#5] (f) at (1.5,0) {};   \node[#6] (e) at (3,0) {};
+  \draw[splt] (-.7,.75) -- (3.7,.75);}
+% text under a panel: #1 = crossing edges, #2 = ebits, #3 = colour of the ebits
+\newcommand{\undersplit}[3]{%
+  \node[big,text=#3] at (1.5,-.75) {#2 ebits};
+  \node[note] at (1.5,-1.2) {#1 edges across};}
+\newcommand{\lcstep}{\draw[lcarr] (4.2,.75) -- node[above,font=\scriptsize,text=usiblue] {LC at $v$} (5.3,.75);}
+
+% tiny labelled 4-qubit graph centred at #1 (qubits at fixed corners); #2 = edges and decorations
+\newcommand{\mini}[2]{%
+  \begin{scope}[shift={(#1)},x=1cm,y=1cm]
+    \node[mq] (1) at (-.17,.17) {1}; \node[mq] (2) at (.17,.17) {2};
+    \node[mq] (3) at (.17,-.17) {3}; \node[mq] (4) at (-.17,-.17) {4};
+    #2
+  \end{scope}}
+
+% arc of radius #1 at height #2 from angle #3 to #4, for pictures with (x,y,z) axes
+\newcommand{\arcz}[4]{plot[domain=#3:#4,samples=61,variable=\t,smooth] ({(#1)*cos(\t)},{(#1)*sin(\t)},{#2})}
+% front wall of a cylinder of radius #1 between heights #2 and #3
+\newcommand{\wallz}[3]{plot[domain=180:360,samples=61,variable=\t,smooth] ({(#1)*cos(\t)},{(#1)*sin(\t)},{#2})
+  -- plot[domain=360:180,samples=61,variable=\t,smooth] ({(#1)*cos(\t)},{(#1)*sin(\t)},{#3}) -- cycle}
+
+\title{The Eulerian frame as a runtime layer}
+\subtitle{Paper direction}
+\author{Alessandro Ruzza}
+\institute{Universit\`a della Svizzera Italiana}
+\date{\today}
+
+\begin{document}
+
+%% ===========================================================================
+\begin{frame}[plain]
+\vfill
+\begin{columns}[c]
+\begin{column}{.58\textwidth}
+  {\usebeamerfont{title}\usebeamercolor[fg]{title}The Eulerian frame\\ as a runtime layer\par}
+  \bigskip
+  {\large Paper direction\par}
+  \bigskip\bigskip
+  Alessandro Ruzza\\
+  {\small Universit\`a della Svizzera Italiana}\par
+  \medskip
+  {\small\today}
+\end{column}
+\begin{column}{.38\textwidth}
+\centering
+\begin{tikzpicture}[scale=1.25]
+  % star = K4 = star, one orbit, three frames
+  \begin{scope}
+    \node[gv] (a) at (0,1.2) {}; \node[gv] (b) at (1.2,1.2) {};
+    \node[gv] (c) at (1.2,0) {}; \node[gv] (d) at (0,0) {};
+    \draw[ge] (a)--(b) (a)--(c) (a)--(d) (b)--(c) (b)--(d) (c)--(d);
+    \vbR{a}\vbN{b}\vbN[below]{c}\vbN[below]{d}
+  \end{scope}
+  \draw[bigarr,{Stealth[length=3.5mm]}-{Stealth[length=3.5mm]}] (.6,-.75) -- (.6,-1.35);
+  \begin{scope}[yshift=-3.1cm]
+    \node[gv] (a) at (0,1.2) {}; \node[gv] (b) at (1.2,1.2) {};
+    \node[gv] (c) at (1.2,0) {}; \node[gv] (d) at (0,0) {};
+    \draw[ge] (a)--(b) (a)--(c) (a)--(d);
+  \end{scope}
+\end{tikzpicture}
+\end{column}
+\end{columns}
+\vfill
+\end{frame}
+
+%% ===========================================================================
+% \begin{frame}{Since the last version}
+% \begin{columns}[T]
+% \begin{column}{.47\textwidth}
+%   \textbf{Before}
+%   \begin{itemize}
+%     \item \ph{what the draft claimed}
+%     \item \ph{what the draft claimed}
+%   \end{itemize}
+% \end{column}
+% \begin{column}{.47\textwidth}
+%   \textbf{Now}
+%   \begin{itemize}
+%     \item Frame as a runtime layer
+%     \item Corrections deferred to handoff
+%     \item \ph{what was dropped / shelved}
+%   \end{itemize}
+% \end{column}
+% \end{columns}
+% \bigskip
+% \centering
+% \begin{tikzpicture}
+%   % simulation direction vs implementation direction
+%   \node[panel] (g) at (0,0) {\tikz{\node[gvs] (x) at (0,0) {}; \node[gvs] (y) at (.8,0) {}; \node[gvs] (z) at (.4,.65) {}; \draw[ge] (x)--(y)--(z)--(x);}};
+%   \node[panel] (h) at (7,0) {\tikz{\foreach \y in {0,.3,.6} \draw[wire] (0,\y) -- (1.3,\y); \draw[wire] (.45,0)--(.45,.3); \node[cdot] at (.45,0) {}; \node[cdot] at (.45,.3) {}; \node[op] at (.95,.6) {};}};
+%   \draw[bigarr,Vcol!40] (h.170) -- node[above,text=Vcol!60] {$\Lframe^\dagger O\,\Lframe$} (g.10);
+%   \draw[bigarr,usiblue] (g.-10) -- node[below,text=usiblue] {$\Lframe\, O\,\Lframe^\dagger$} (h.190);
+% \end{tikzpicture}
+% \end{frame}
+
+%% ===========================================================================
+\begin{frame}{Graph rules hold only up to local Cliffords}
+\begin{columns}[T]
+%% --- 1. M_X leaves a Hadamard ---------------------------------------------
+\begin{column}{.31\textwidth}
+\centering
+\begin{tikzpicture}[scale=.95]
+  \node[gv] (a) at (0,0) {$a$}; \node[xv] (v) at (1.1,0) {$v$}; \node[gv] (b) at (2.2,0) {$b$};
+  \draw[ge] (a)--(v)--(b);
+  \vbI{a}\vbI{v}\vbI{b}
+  \draw[bigarr] (1.1,-.55) -- (1.1,-1.25);
+  \begin{scope}[yshift=-1.9cm]
+    \node[gv] (a) at (0,0) {$a$}; \node[ghost] (v) at (1.1,-.55) {}; \node[gv] (b) at (2.2,0) {$b$};
+    \draw[newe] (a)--(b);
+    \vbI{a}\vbH{b}
+  \end{scope}
+\end{tikzpicture}
+\cl{$\MX$ swaps the basis of a neighbour}
+\end{column}
+%% --- 2. M_X behind a Hadamard is M_Z ---------------------------------------
+\begin{column}{.31\textwidth}
+\centering
+\begin{tikzpicture}[scale=.95]
+  \node[gv] (a) at (0,0) {$a$}; \node[xv] (v) at (1.1,0) {$v$}; \node[gv] (b) at (2.2,0) {$b$};
+  \draw[ge] (a)--(v)--(b);
+  \vbI{a}\vbH{v}\vbI{b}
+  \draw[bigarr] (1.1,-.55) -- (1.1,-1.25);
+  \begin{scope}[yshift=-1.9cm]
+    \node[gv] (a) at (0,0) {$a$}; \node[ghost] (v) at (1.1,-.55) {}; \node[gv] (b) at (2.2,0) {$b$};
+    \draw[gone] (a)--(b);
+    \vbI{a}\vbI{b}
+  \end{scope}
+\end{tikzpicture}
+\cl{With basis $(\cX,\cZ)$, physical $\MX$ is a graph $\mathrm{M}_Z$}
+\end{column}
+%% --- 3. Noise depends on the frame -----------------------------------------
+\begin{column}{.31\textwidth}
+\centering
+\begin{tikzpicture}[scale=.95]
+  \node[gv] (a) at (0,0) {$a$}; \node[gv] (b) at (1.3,0) {$b$};
+  \draw[ge] (a)--(b);
+  \node[err=Xcol] at ([yshift=3.2mm]b.north) {};
+  \node at (1.95,0) {$=$};
+  \node[gv] (a2) at (2.6,0) {$a$}; \node[gv] (b2) at (3.9,0) {$b$};
+  \draw[ge] (a2)--(b2);
+  \node[err=Zcol] at ([yshift=3.2mm]a2.north) {};
+  \vbI[below]{a}\vbI[below]{b}\vbI[below]{a2}\vbI[below]{b2}
+  \begin{scope}[yshift=-2.1cm]
+    \node[gv] (a) at (0,0) {$a$}; \node[gv] (b) at (1.3,0) {$b$};
+    \draw[ge] (a)--(b);
+    \node[err=Xcol] at ([yshift=3.2mm]b.north) {};
+    \node at (1.95,0) {$=$};
+    \node[gv] (a2) at (2.6,0) {$a$}; \node[gv] (b2) at (3.9,0) {$b$};
+    \draw[ge] (a2)--(b2);
+    \node[err=Zcol] at ([yshift=3.2mm]b2.north) {};
+    \vbI[below]{a}\vbH[below]{b}\vbI[below]{a2}\vbH[below]{b2}
+  \end{scope}
+\end{tikzpicture}
+\cl{Noise is affected: \textcolor{Xcol}{$X$} error $\to$ \textcolor{Zcol}{$Z$} error}
+\end{column}
+\end{columns}
+\end{frame}
+
+%% ===========================================================================
+\begin{frame}{The frame as a software layer between protocol and hardware}
+\centering
+\medskip
+\begin{tikzpicture}
+  %% --- column heads: graph state | frame | physical qubits -------------------
+  \begin{scope}[shift={(-.45,3.75)},scale=.7]
+    \node[pnode] (g1) at (0,0) {}; \node[pnode] (g2) at (.65,0) {}; \node[pnode] (g3) at (1.3,0) {};
+    \draw[ge] (g1)--(g2)--(g3);
+  \end{scope}
+  \node at (5.2,3.75) {$\Lframe$};
+  \begin{scope}[shift={(9.95,3.6)}]
+    \foreach \y in {0,.15,.3} \draw[wire] (0,\y) -- (.9,\y);
+  \end{scope}
+
+  %% --- protocol: instructions written for a graph state ---------------------
+  \node[opbox,minimum width=1.7cm] (p1) at (0,2.6) {$\CZon v w$};
+  \node[opbox,minimum width=1.7cm] (p2) at (0,1.3) {$\measX v$};
+  \node[opbox,minimum width=1.7cm] (p3) at (0,0)   {$\localComp u$};
+
+  %% --- Eulerian frame: looks up the vertex bases, inserts re-framings -------
+  \begin{scope}[on background layer]
+    \draw[draw=Acc,line width=1pt,rounded corners=4pt,fill=Acc!8] (2.9,-.65) rectangle (7.5,3.25);
+  \end{scope}
+  \node[vbl] (f1) at (5.2,2.6) {$v\!:(\cX,\cZ)\qquad w\!:(\cZ,\cX)$};
+  \node[vbl] (f2) at (4.2,1.3) {$\wC v=\cZ$};
+  \node[dec] (r2) at (6.4,1.3) {$\pivoting v b$};
+  \node[dec] (r3) at (5.2,0)   {$\reframing u$};
+  % re-framings loop back into the frame: classical, no gate
+  \node[text=Acc!85!black,anchor=west,inner sep=1.5pt] at (r2.east) {$\circlearrowleft$};
+  \node[text=Acc!85!black,anchor=west,inner sep=1.5pt] at (r3.east) {$\circlearrowleft$};
+
+  %% --- hardware: the physical operation with the same effect ----------------
+  % XCZ: X on v controlled by Z on w
+  \begin{scope}[shift={(9.6,2.6)}]
+    \draw[wire] (0,.3) node[left,font=\scriptsize] {$v$} -- (1.6,.3);
+    \draw[wire] (0,-.3) node[left,font=\scriptsize] {$w$} -- (1.6,-.3);
+    \draw[wire] (.8,-.3) -- (.8,.47); \node[cdot] at (.8,-.3) {};
+    \draw[wire] (.8,.3) circle (1.7mm);
+    \coordinate (h1) at (-.45,0);
+  \end{scope}
+  % measure v in the Z basis
+  \begin{scope}[shift={(9.6,1.3)}]
+    \draw[wire] (0,0) node[left,font=\scriptsize] {$v$} -- (.8,0);
+    % meter: dial and needle, measured Pauli as a small index
+    \node[draw=Vcol,fill=Vcol!6,line width=.7pt,minimum width=7mm,minimum height=5.5mm,inner sep=0pt] (m) at (1.15,0) {};
+    \draw[Vcol,line width=.6pt] ([shift={(-2.2mm,-1.2mm)}]m.center) arc[start angle=180,end angle=0,radius=2.2mm];
+    \draw[Vcol,line width=.6pt,-{Stealth[length=1.2mm]}] ([yshift=-1.2mm]m.center) -- ++(55:3.1mm);
+    \node[font=\tiny,inner sep=.5pt,anchor=north west] at ([xshift=.3mm]m.south east) {\Zp};
+    \coordinate (h2) at (-.45,0);
+  \end{scope}
+  % nothing to do
+  \node[text=Vcol!45] (h3) at (10.4,0) {$\varnothing$};
+
+  %% --- flow -----------------------------------------------------------------
+  \draw[bigarr,usiblue] (p1) -- (2.9,2.6);
+  \draw[bigarr,usiblue] (p2) -- (2.9,1.3);
+  \draw[bigarr,usiblue] (p3) -- (2.9,0);
+  \draw[bigarr,usiblue] (7.5,2.6) -- (h1);
+  \draw[bigarr,usiblue] (7.5,1.3) -- (h2);
+  \draw[bigarr,Vcol!35,dashed] (7.5,0) -- (h3);
+  % measurement outcome returns to the frame
+  % measurement outcome returns to the frame as a Pauli side effect: signs only
+  \node[vbl] (sg) at (6.3,.65) {$(\pm\eulElemN,\pm\eulElemC)$};
+  \draw[cls,rounded corners=3pt,-{Stealth[length=2.2mm]}] (m.south) -- (m.south |- sg) -- node[pos=.3,above,font=\scriptsize,text=Vcol] {$\pm1$} (sg.east);
+\end{tikzpicture}
+
+\medskip
+\[ \Lframe\,O\ket{G} \;=\; \big(\Lframe\,O\,\Lframe^\dagger\big)\,\Lframe\ket{G} \]
+\cl{Same effect on the state, zero physical corrections during the protocol}
+\end{frame}
+
+%% ===========================================================================
+\begin{frame}{Scope}
+\begin{columns}[c]
+\begin{column}{.45\textwidth}
+\centering
+\begin{tikzpicture}
+  % three nodes, each holding qubits and a copy of the (local) frame
+  % \p, \q = the two qubits held by the node; it stores only L_p L_q
+  \foreach \n/\x/\y/\p/\q in {A/0/0/1/2, B/3.2/0/3/4, C/1.6/2.4/5/6} {
+    \node[panel,minimum width=1.9cm,minimum height=1.25cm] (\n) at (\x,\y) {};
+    \node[gvs] (\n1) at ([xshift=-4.5mm,yshift=1.5mm]\n.center) {$\p$};
+    \node[gvs] (\n2) at ([xshift=4.5mm,yshift=1.5mm]\n.center) {$\q$};
+    \node[vbl,text=Acc!70!black] (\n f) at ([yshift=-4mm]\n.center) {$L_{\p}L_{\q}$};
+  }
+  \draw[ge] (A2)--(B1) (A1)--(C1) (B2)--(C2) (A1)--(A2);
+  % \draw[cls] (A.east) -- (B.west);
+  % \draw[cls] (A.north) -- (C.south west);
+  % \draw[cls] (B.north) -- (C.south east);
+  % timeline: one correction at the end, then handoff
+  \begin{scope}[yshift=-2.3cm,xshift=-.7cm]
+    \wires{4.3}
+    \twoq{.6}{0}{.5} \twoq{1.4}{.5}{1} \node[op] at (2.2,0) {}; \twoq{3}{0}{1}
+    \foreach \y in {0,.5,1} \node[ccor] at (3.8,\y) {};
+    \draw[bigarr] (4.5,.5) -- (5.3,.5);
+    \draw[decorate,decoration={brace,mirror,amplitude=4pt},Vcol] (.3,-.3) -- (3.3,-.3);
+  \end{scope}
+\end{tikzpicture}
+\end{column}
+\begin{column}{.52\textwidth}
+\begin{itemize}\setlength{\itemsep}{6pt}
+  \item Closed system, shared frame
+  \item Target: a multipartite stabilizer state
+  \item One local Clifford per qubit, at the end
+  \item Any \PCQ{} gate, any Pauli basis meas.
+  \item Only Clifford operations
+\end{itemize}
+\end{column}
+\end{columns}
+\end{frame}
+
+%% ===========================================================================
+\begin{frame}{Graph operation $\to$ physical operation}
+\centering
+\small
+\renewcommand{\arraystretch}{1.9}
+\begin{tabular}{@{}c l l l@{}}
+\toprule
+ & Intended (on graph) & Physical & Frame / graph update \\
+\midrule
+\raisebox{-1.5mm}{\tikz{\node[pO] (x) at (0,0) {}; \node[pX] (y) at (.45,0) {}; \node[pO] (z) at (.9,0) {}; \draw[ge] (x)--(y)--(z);}}
+ & measure $\PZ v$, $\PX v$, $\PY v$
+ & measure $\wN v$, $\wC v$, $i\,\wC v \wN v$
+ & delete $v$ (after $\reframing v$ or $\pivoting v b$) \\
+\raisebox{-1.5mm}{\tikz{\node[pO] (x) at (0,0) {}; \node[pO] (y) at (.9,0) {}; \draw[newe,dashed] (x)--(y);}}
+ & $\CZon v w$
+ & \PCQ{}, $P=|\wN v|$, $Q=|\wN w|$
+ & toggle $vw$; sign flips $\eulElemC$ \\
+\raisebox{-1.5mm}{\tikz{\node[pO] (x) at (0,0) {}; \node[vbl,font=\tiny,right=.5pt of x] {$(\cX,\cZ)$};}}
+ & local Clifford $C_v$
+ & none
+ & conjugate $\vertexBasis v$ \\
+\raisebox{-2.5mm}{\tikz{\node[pO] (x) at (0,0) {}; \node[pO] (y) at (.9,0) {}; \node[pO] (z) at (.45,.5) {}; \draw[ge] (x)--(z)--(y); \draw[newe] (x)--(y);}}
+ & $\localComp v$
+ & none
+ & re-framing $\reframing v$ \\
+\bottomrule
+\end{tabular}
+\end{frame}
+
+%% ===========================================================================
+\begin{frame}{Every measurement reduces to deletion}
+\centering
+\begin{tikzpicture}[scale=.8,vbl/.append style={font=\tiny}]
+  %% --- Z ---
+  \begin{scope}[yshift=5.2cm]
+    \startgraph{zv} \draw[ge] (a)--(v)--(b)--(c);
+    \vbI[left]{a}\vbI[right]{c}\vbI[left]{v}\vbI[right]{b}
+    \draw[bigarr] (2.5,.6) -- (9.6,.6);
+    \begin{scope}[xshift=10.9cm]
+      \node[gv] (a) at (0,1.2) {$a$}; \node[ghost] (v) at (0,0) {};
+      \node[gv] (b) at (1.2,0) {$b$}; \node[gv] (c) at (1.2,1.2) {$c$};
+      \draw[ge] (b)--(c);
+      \vbI[left]{a}\vbI[right]{c}\vbI[right]{b}
+    \end{scope}
+  \end{scope}
+  %% --- Y ---
+  \begin{scope}[yshift=2.6cm]
+    \startgraph{yv} \draw[ge] (a)--(v)--(b)--(c);
+    \vbI[left]{a}\vbI[right]{c}\vbI[left]{v}\vbI[right]{b}
+    \draw[bigarr] (2.5,.6) -- node[above] {$\reframing v$} (4.2,.6);
+    \begin{scope}[xshift=5.4cm]
+      \startgraph{zv} \draw[ge] (a)--(v)--(b)--(c); \draw[newe] (a)--(b);
+      \vbN[left]{a}\vbI[right]{c}\vbR[left]{v}\vbN[right]{b}
+    \end{scope}
+    \draw[bigarr] (7.9,.6) -- (9.6,.6);
+    \begin{scope}[xshift=10.9cm]
+      \node[gv] (a) at (0,1.2) {$a$}; \node[ghost] (v) at (0,0) {};
+      \node[gv] (b) at (1.2,0) {$b$}; \node[gv] (c) at (1.2,1.2) {$c$};
+      \draw[ge] (a)--(b)--(c);
+      \vbN[left]{a}\vbI[right]{c}\vbN[right]{b}
+    \end{scope}
+  \end{scope}
+  %% --- X ---
+  \begin{scope}
+    \startgraph{xv} \draw[ge] (a)--(v)--(b)--(c);
+    \vbI[left]{a}\vbI[right]{c}\vbI[left]{v}\vbI[right]{b}
+    \draw[bigarr] (2.5,.6) -- node[above] {$\pivoting v b$} (4.2,.6);
+    \begin{scope}[xshift=5.4cm]
+      \startgraph{zv} \draw[ge] (v)--(b); \draw[newe] (a)--(b) (v)--(c) (a)--(c);
+      \vbI[left]{a}\vbI[right]{c}\vbH[left]{v}\vbH[right]{b}
+    \end{scope}
+    \draw[bigarr] (7.9,.6) -- (9.6,.6);
+    \begin{scope}[xshift=10.9cm]
+      \node[gv] (a) at (0,1.2) {$a$}; \node[ghost] (v) at (0,0) {};
+      \node[gv] (b) at (1.2,0) {$b$}; \node[gv] (c) at (1.2,1.2) {$c$};
+      \draw[ge] (a)--(b) (a)--(c);
+      \vbI[left]{a}\vbI[right]{c}\vbH[right]{b}
+    \end{scope}
+  \end{scope}
+  % separators between the Z, Y, X rows
+  \foreach \y in {4.5,1.9} \draw[Vcol!30,dashed,line width=.5pt] (-2.9,\y) -- (13.4,\y);
+  % row labels: the Pauli measured on the graph
+  \node[text=Zcol] at (-2.4,5.8) {$Z_v$};
+  \node[text=Ycol] at (-2.4,3.2) {$Y_v$};
+  \node[text=Xcol] at (-2.4,.6) {$X_v$};
+\end{tikzpicture}
+\end{frame}
+
+%% ===========================================================================
+\begin{frame}{Pivot $\pivoting v b = \reframing v \reframing b \reframing v$}
+\centering
+\begin{tikzpicture}
+  \newcommand{\sq}{%
+    \node[gv] (a) at (0,1.4) {$a$}; \node[gv] (v) at (0,0) {$v$};
+    \node[gv] (b) at (1.4,0) {$b$}; \node[gv] (c) at (1.4,1.4) {$c$};}
+  \begin{scope}
+    \sq \draw[ge] (a)--(v)--(b)--(c);
+    \vbI{a}\vbI{c}\vbI[below]{v}\vbI[below]{b}
+  \end{scope}
+  \draw[bigarr] (2,.7) -- node[above] {$\reframing v$} (3.2,.7);
+  \begin{scope}[xshift=3.8cm]
+    \sq \draw[ge] (a)--(v)--(b)--(c); \draw[newe] (a)--(b);
+    \vbN{a}\vbI{c}\vbR[below]{v}\vbN[below]{b}
+  \end{scope}
+  \draw[bigarr] (5.8,.7) -- node[above] {$\reframing b$} (7,.7);
+  \begin{scope}[xshift=7.6cm]
+    \sq \draw[ge] (v)--(b)--(c) (a)--(b); \draw[newe] (v)--(c) (a)--(c); \draw[gone] (a)--(v);
+    \vb{a}{\cZ}{-\cX}\vbN{c}\vb[below]{v}{\cY}{-\cZ}\vb[below]{b}{-\cX}{\cY}
+  \end{scope}
+  \draw[bigarr] (9.6,.7) -- node[above] {$\reframing v$} (10.8,.7);
+  \begin{scope}[xshift=11.4cm]
+    \sq \draw[ge] (v)--(b) (a)--(b) (v)--(c) (a)--(c); \draw[gone] (b)--(c);
+    \vb{a}{\cZ}{-\cX}\vb{c}{\cZ}{-\cX}\vb[below]{v}{-\cX}{-\cZ}\vb[below]{b}{-\cX}{-\cZ}
+  \end{scope}
+\end{tikzpicture}
+
+\bigskip
+\[ \PX v \;\mapsto\; \PX v \;\mapsto\; -\PY v \;\mapsto\; -\PZ v \]
+\cl{At most $|\NN v|\cdot|\NN b|$ edge flips: pick $b$ of minimum degree}
+\end{frame}
+
+%% ===========================================================================
+\begin{frame}{An intended $\CZ$ becomes one \PCQ{} gate}
+\centering
+\begin{tikzpicture}[
+    lf/.style ={rectangle,draw=Vcol,fill=Vcol!10,line width=.6pt,minimum size=5.6mm,inner sep=0pt,font=\scriptsize},
+    cpt/.style ={font=\scriptsize,text=Vcol,inner sep=1pt},
+    hl/.style  ={Acc,line width=.7pt,-{Stealth[length=1.6mm]},shorten <=1pt,shorten >=1.5pt}]
+  %% --- graph side: v was Hadamarded, w was re-framed --------------------------
+  \node[gv] (v) at (0,1) {$v$}; \node[gv] (w) at (0,-.4) {$w$};
+  \node[gvs] (x) at (-1.1,1.5) {}; \node[gvs] (y) at (-1.1,-.9) {};
+  \draw[ge] (x)--(v) (y)--(w);
+  \draw[newe,dashed] (v)--(w);
+  \node[vbl,right=.5pt of v] (bv) {$(\eul{\cX},\cZ)$};
+  \node[vbl,right=.5pt of w] (bw) {$(\eul{\cY},\cX)$};
+  \node[cpt] at (0,-1.8) {intended: $\CZon v w$};
+  %% --- what the graph gate is on the hardware: frame, CZ, frame ---------------
+  \onslide<2->
+  \node[text=Vcol] at (2.15,.3) {$=$};
+  \begin{scope}[xshift=3.3cm]
+    \draw[wire] (0,1) node[left] {$v$} -- (4,1);
+    \draw[wire] (0,-.4) node[left] {$w$} -- (4,-.4);
+    \node[lf] at (.8,1) {$L_v^\dagger$};  \node[lf] at (3.2,1) {$L_v$};
+    \node[lf] at (.8,-.4) {$L_w^\dagger$}; \node[lf] at (3.2,-.4) {$L_w$};
+    \draw[wire] (2,-.4) -- (2,1);
+    \node[pend=Zcol] at (2,1) {$\cZ$}; \node[pend=Zcol] at (2,-.4) {$\cZ$};
+    \node[cpt] at (.8,-1.4) {leave frame}; \node[cpt] at (2,-1.4) {$\CZ$}; \node[cpt] at (3.2,-1.4) {re-enter};
+    \node[cpt] at (2,-1.8) {$\Lframe\,\CZon v w\,\Lframe^\dagger$};
+  \end{scope}
+  %% --- the frame turns each Z end into the Eulerian letter of its qubit --------
+  \onslide<3->
+  \node[text=Vcol] at (8,.3) {$=$};
+  \begin{scope}[xshift=9.1cm]
+    \draw[wire] (0,1) node[left] {$v$} -- (1.7,1);
+    \draw[wire] (0,-.4) node[left] {$w$} -- (1.7,-.4);
+    \draw[wire] (1,-.4) -- (1,1);
+    \node[pend=Xcol] (P) at (1,1) {$\cX$}; \node[pend=Ycol] (Q) at (1,-.4) {$\cY$};
+    \node[cpt,anchor=west] at (1.85,1)   {$P=|\wN v|$};
+    \node[cpt,anchor=west] at (1.85,-.4) {$Q=|\wN w|$};
+    \node[cpt] at (1.3,-1.4) {$L_v \cZ L_v^\dagger=\cX,\ \ L_w \cZ L_w^\dagger=\cY$};
+    \node[cpt] at (1.3,-1.8) {one gate: \PCQ{} $=$ \texttt{XCY}};
+  \end{scope}
+  \draw[hl] (bv.north) to[bend left=8] (P.north west);
+  \draw[hl] (bw.south) to[bend right=8] (Q.south west);
+  \onslide<1->
+\end{tikzpicture}
+
+\bigskip
+\onslide<4->
+\cl{$\CZ$ flips the sign when $v$ and $w$ are both in the $-1$ eigenstate of $\cZ$.\\
+    \PCQ{} flips it when $v$ is in the $-1$ eigenstate of $P$ and $w$ in that of $Q$.}
+\medskip
+\begin{tikzpicture}[
+    cpt/.style ={font=\scriptsize,text=Vcol,inner sep=1pt,anchor=west}]
+  \pcqcase{0cm}{Zcol}{\cZ}{Zcol}{\cZ}{$\wN v,\wN w=\cZ,\cZ$:\ \ $\CZ$}
+  \pcqcase{4.3cm}{Xcol}{\cX}{Zcol}{\cZ}{$\cX,\cZ$:\ \ CNOT, target $v$}
+  \pcqcase{8.6cm}{Xcol}{\cX}{Ycol}{\cY}{$\cX,\cY$:\ \ \texttt{XCY} (above)}
+\end{tikzpicture}
+\onslide<1->
+% \cl{\ph{general rule: sign cases and the $\eulElemC$ flip}}
+\end{frame}
+
+%% ===========================================================================
+\begin{frame}{One orbit, one state}
+\centering
+\begin{tikzpicture}[scale=1.1]
+  \newcommand{\kfour}{%
+    \node[gv] (a) at (0,1.3) {$a$}; \node[gv] (b) at (1.3,1.3) {$b$};
+    \node[gv] (c) at (1.3,0) {$c$}; \node[gv] (d) at (0,0) {$d$};}
+  \begin{scope}
+    \kfour \draw[ge] (a)--(b) (a)--(c) (a)--(d);
+    \vbI{a}\vbI{b}\vbI[below]{c}\vbI[below]{d}
+  \end{scope}
+  \node at (2.35,.65) {\Large$=$};
+  \begin{scope}[xshift=3.4cm]
+    \kfour \draw[ge] (a)--(b) (a)--(c) (a)--(d) (b)--(c) (b)--(d) (c)--(d);
+    \vbR{a}\vbN{b}\vbN[below]{c}\vbN[below]{d}
+  \end{scope}
+  \node at (5.75,.65) {\Large$=$};
+  \begin{scope}[xshift=6.8cm]
+    \kfour \draw[ge] (b)--(a) (b)--(c) (b)--(d);
+    \vbH{a}\vbH{b}\vbI[below]{c}\vbI[below]{d}
+  \end{scope}
+\end{tikzpicture}
+
+\bigskip\bigskip
+\cl{The whole LC orbit (considering graphs) is now correct, at the cost of tracking Cliffords}
+\end{frame}
+
+%% ===========================================================================
+\begin{frame}{Against prior work}
+\centering
+\begin{tikzpicture}
+  % one protocol in three regimes: CZs, then M_X on q2, M_Y on q4, M_Z on q5
+  % wires q1..q5 at y = 0, .32, .64, .96, 1.28; q1 and q3 survive
+  \newcommand{\prot}{%
+    \draw[wire] (0,0) -- (7.7,0); \draw[wire] (0,.64) -- (7.7,.64);
+    \draw[wire] (0,.32) -- (1.8,.32); \draw[wire] (0,.96) -- (4.4,.96); \draw[wire] (0,1.28) -- (6.1,1.28);
+    \twoq{.6}{0}{.32}\twoq{1.1}{.32}{.64}\twoq{3.2}{.64}{.96}\twoq{3.7}{.96}{1.28}
+    \meter{1.8}{.32}{Xcol}{X}\meter{4.4}{.96}{Ycol}{Y}\meter{6.1}{1.28}{Zcol}{Z}}
+  % Cliffords left behind by the measurements: H after M_X, S-type after M_Y
+  \newcommand{\cliffs}{%
+    \node[ccor,font=\tiny] at (2.5,.64) {$H$};
+    \node[ccor,font=\tiny] at (5.1,.64) {$S$}; \node[ccor,font=\tiny] at (5.1,1.28) {$S$};%
+    % further Cliffords: middle wire after the Pauli from M_Y, bottom wire after the Pauli from M_X
+    \node[ccor] at (5.9,.64) {}; \node[ccor] at (2.9,0) {};}
+  %% correct immediately
+  \begin{scope}[yshift=4.2cm]
+    \prot \cliffs
+    \foreach \x/\y in {2.5/0, 2.9/.64, 5.5/.64, 5.5/1.28, 6.8/.64} \node[pcor] at (\x,\y) {};
+  \end{scope}
+  %% Pauli frame: Paulis wait until the end, Cliffords do not
+  \begin{scope}[yshift=2.1cm]
+    \prot \cliffs
+    \foreach \y in {0,.64} \node[pcor] at (7.35,\y) {};
+  \end{scope}
+  %% Eulerian frame: one local Clifford per surviving qubit, at the end
+  \begin{scope}
+    \prot
+    \foreach \y in {0,.64} \node[ccor] at (7.35,\y) {};
+  \end{scope}
+  \node[anchor=east,align=right] at (-.4,4.84) {\small correct immediately};
+  \node[anchor=east,align=right] at (-.4,2.74) {\small Pauli frame\\[-2pt] \scriptsize Riesebos et al., DAC 2017};
+  \node[anchor=east,align=right,text=usiblue] at (-.4,.64) {\small\bfseries Eulerian frame};
+  % legend
+  \node[pcor] (lp) at (8.6,3.0) {}; \node[right] at (lp.east) {\small Pauli};
+  \node[ccor] (lc) at (8.6,2.5) {}; \node[right] at (lc.east) {\small Clifford};
+\end{tikzpicture}
+\end{frame}
+
+%% ===========================================================================
+% \begin{frame}{Canonical frame: the final correction}
+% \centering
+% \begin{tikzpicture}
+%   \newcommand{\four}{%
+%     \node[gv] (a) at (0,1.2) {$a$}; \node[gv] (b) at (1.2,1.2) {$b$};
+%     \node[gv] (c) at (1.2,0) {$c$}; \node[gv] (d) at (0,0) {$d$};}
+%   % final state of the protocol
+%   \begin{scope}
+%     \four \draw[ge] (a)--(b) (a)--(c) (a)--(d) (b)--(c) (b)--(d) (c)--(d);
+%     \vbR{a}\vbN{b}\vbN[below]{c}\vbN[below]{d}
+%   \end{scope}
+%   % both sides on the same graph
+%   \begin{scope}[xshift=3.7cm]
+%     \four \draw[ge] (a)--(b) (a)--(c) (a)--(d);
+%     \vbI{a}\vbI{b}\vbI[below]{c}\vbI[below]{d}
+%   \end{scope}
+%   \node at (5.85,.6) {\Large$\overset{?}{=}$};
+%   \begin{scope}[xshift=6.8cm]
+%     \four \draw[ge] (a)--(b) (a)--(c) (a)--(d);
+%     \vbH{a}\vbI{b}\vbH[below]{c}\vbI[below]{d}
+%   \end{scope}
+%   % target requested by the application
+%   \begin{scope}[xshift=10.5cm]
+%     \four \draw[ge] (c)--(a) (c)--(b) (c)--(d);
+%     \vbI{a}\vbI{b}\vbI[below]{c}\vbI[below]{d}
+%   \end{scope}
+%   \draw[bigarr] (1.9,.6) -- (3.1,.6);
+%   \draw[bigarr] (9.9,.6) -- (8.6,.6);
+%   \draw[bigarr,usiblue] (5.85,-.7) -- (5.85,-1.5);
+%   \node[draw=Acc,line width=1pt,rounded corners=2pt,fill=Acc!15,inner sep=5pt] at (5.85,-2.05) {$H_a H_c$};
+% \end{tikzpicture}
+
+% \medskip
+% \cl{Always $H^{\alpha}S^{\beta}Z^{\gamma}$ per qubit \quad \ph{cost on sparse states vs tableau row reduction}}
+% \end{frame}
+
+%% ===========================================================================
+\begin{frame}{Evaluation plan}
+\centering
+\begin{tikzpicture}
+  \begin{scope}
+    \emptyaxes{protocol steps}{physical corrections}
+  \end{scope}
+  \begin{scope}[xshift=7cm]
+    \emptyaxes{$n$}{classical cost}
+  \end{scope}
+  % series, no data yet
+  \begin{scope}[yshift=-1.2cm]
+    \draw[Vcol,thick] (0,0) -- (.8,0) node[right] {\small correct immediately};
+    \draw[Zcol,thick,dashed] (4.3,0) -- (5.1,0) node[right] {\small Pauli frame};
+    \draw[Acc,line width=1.4pt] (7.6,0) -- (8.4,0) node[right] {\small Eulerian frame};
+  \end{scope}
+\end{tikzpicture}
+
+\medskip
+% \cl{\ph{protocols, graph sizes, baselines: GraphSim, greedy orbit choice}}
+\end{frame}
+
+%% ===========================================================================
+% \begin{frame}{Questions}
+% \begin{columns}[T]
+% \begin{column}{.47\textwidth}
+% \centering
+% \begin{tikzpicture}[scale=.75]
+%   \node[gvs] (a) at (0,1) {}; \node[gvs] (b) at (1,1) {}; \node[gvs] (c) at (1,0) {}; \node[gvs] (d) at (0,0) {};
+%   \draw[ge] (a)--(b) (a)--(c) (a)--(d) (b)--(c) (b)--(d) (c)--(d);
+%   \draw[bigarr] (1.5,.5) -- node[above] {\small ?} (2.6,.5);
+%   \begin{scope}[xshift=3.1cm]
+%     \node[gvs] (a) at (0,1) {}; \node[gvs] (b) at (1,1) {}; \node[gvs] (c) at (1,0) {}; \node[gvs] (d) at (0,0) {};
+%     \draw[ge] (a)--(b) (a)--(c) (a)--(d);
+%   \end{scope}
+% \end{tikzpicture}
+% \cl{Fewest edges in an orbit: NP-hard?}
+
+% \bigskip
+% \begin{tikzpicture}[scale=.75]
+%   \draw[wire] (0,.9) -- (2,.9); \draw[wire] (0,0) -- (2,0); \draw[wire] (1,0)--(1,.9);
+%   \node[op,minimum size=4.5mm] at (1,.9) {\tiny$P$}; \node[op,minimum size=4.5mm] at (1,0) {\tiny$Q$};
+% \end{tikzpicture}
+% \cl{Is unrestricted \PCQ{} hardware acceptable?}
+% \end{column}
+% \begin{column}{.47\textwidth}
+% \centering
+% \begin{tikzpicture}[scale=.75]
+%   \node[gvs] (a) at (0,.9) {}; \node[gvs] (b) at (0,0) {}; \draw[ge] (a)--(b); \node[vbl,font=\tiny,left=.5pt of a] {$(\cX,\cZ)$};
+%   \node at (.6,.45) {$\sim$};
+%   \node[gvs] (c) at (1.2,.9) {}; \node[gvs] (d) at (1.2,0) {}; \draw[ge] (c)--(d);
+%   \draw[bigarr] (1.8,.45) -- (2.9,.45);
+%   \node[gvs] (e) at (3.5,.9) {}; \node[gvs] (f) at (3.5,0) {};
+%   \node at (4.1,.45) {$\overset{?}{\sim}$};
+%   \node[gvs] (g) at (4.7,.9) {}; \node[gvs] (h) at (4.7,0) {}; \draw[ge] (g)--(h);
+% \end{tikzpicture}
+% \cl{LC-equivalent inputs, LC-equivalent outputs? \ph{involution condition}}
+
+% \bigskip
+% \begin{tikzpicture}[scale=.6]
+%   % repeater graph state: complete core, one leaf per core vertex
+%   \foreach \i/\ang in {1/45,2/135,3/225,4/315} {
+%     \node[gvs] (c\i) at (\ang:.9) {};
+%     \node[gvs,fill=Pcol!18,draw=Pcol] (l\i) at (\ang:2) {};
+%     \draw[ge] (c\i)--(l\i);
+%   }
+%   \draw[ge] (c1)--(c2)--(c3)--(c4)--(c1) (c1)--(c3) (c2)--(c4);
+% \end{tikzpicture}
+% \cl{All-photonic simulation as the application?}
+% \end{column}
+% \end{columns}
+% \end{frame}
+
+%% ===========================================================================
+\begin{frame}{Venues}
+\centering
+\begin{tikzpicture}[x=.115cm]
+  % days since 1 Oct 2026
+  \draw[axarr,Vcol] (0,0) -- (120,0);
+  \foreach \d/\m in {0/Oct, 31/Nov, 61/Dec, 92/Jan} {
+    \draw[Vcol] (\d,-.12) -- (\d,.12);
+    \node[below,text=Vcol!70] at (\d,-.15) {\small \m};
+  }
+  \node[ccor,minimum size=2.4mm] (today) at (4,0) {};
+  % \d = day, \h = height, \a = label anchor, \name, \when
+  \foreach \d/\h/\a/\name/\when in {
+      19/1.2/south/QCNC 2027/20 Oct,
+      29/2.5/south/PLanQC 2027/30 Oct,
+      43/3.6/south/Q-SE 2027/13 Nov,
+      48/1.2/south west/DAC 2027/18 Nov,
+      72/2.5/south/QuNeW 2027/12 Dec,
+      102/2.6/south/SIGMETRICS 2027/11 Jan,
+      111/.9/south/CAV 2027/20 Jan} {
+    \draw[usiblue,thick] (\d,0) -- (\d,\h);
+    \node[circle,fill=usiblue,inner sep=1.6pt] at (\d,0) {};
+    \node[anchor=\a,align=center,text=usiblue] at (\d,\h) {\small\bfseries \name\\[-2pt] \footnotesize \when};
+  }
+  % tentative: last year's original QuNAP deadline (29 Dec, later extended to 15 Jan)
+  \draw[usiblue!60,thick,dashed] (89,0) -- (89,1.2);
+  \node[circle,draw=usiblue!60,fill=white,line width=.8pt,inner sep=1.6pt] at (89,0) {};
+  \node[anchor=south,align=center,text=usiblue!60] at (89,1.2) {\small\bfseries QuNAP 2027\\[-2pt] \footnotesize $\approx$ 29 Dec};
+\end{tikzpicture}
+
+\bigskip
+\end{frame}
+
+%% ===========================================================================
+% \begin{frame}{Next steps}
+% \begin{columns}[T]
+% \begin{column}{.47\textwidth}
+%   \textbf{On my side}
+%   \begin{itemize}
+%     \item $\CZ \to \PCQ$ rule in the paper
+%     \item Scope paragraph and operations table
+%     \item Evaluation
+%     \item \ph{more}
+%   \end{itemize}
+% \end{column}
+% \begin{column}{.47\textwidth}
+%   \textbf{From you}
+%   \begin{itemize}
+%     \item \ph{ask}
+%     \item \ph{ask}
+%   \end{itemize}
+% \end{column}
+% \end{columns}
+% \end{frame}
+
+%% ===========================================================================
+%% Part 2: LC-equivalence up to relabelling
+%% ===========================================================================
+\begin{frame}[plain]
+\centering
+\vfill
+{\usebeamerfont{title}\usebeamercolor[fg]{title}LC-equivalence up to relabelling\par}
+\bigskip\bigskip
+\begin{tikzpicture}[scale=1.2]
+  \begin{scope}
+    \sqfour{1}{2}{3}{4} \draw[ge] (1)--(2)--(3)--(4);
+  \end{scope}
+  \node at (1.75,.5) {\Large$\lcsim$};
+  \begin{scope}[xshift=2.5cm]
+    \sqfour{1}{2}{3}{4} \draw[ge] (1)--(2)--(3)--(4); \draw[newe] (1)--(3);
+  \end{scope}
+  \node at (4.25,.5) {\Large$\isosim$};
+  \begin{scope}[xshift=5cm]
+    \sqfour{2}{3}{4}{1} \draw[ge] (1)--(2)--(3)--(4); \draw[newe] (1)--(3);
+  \end{scope}
+\end{tikzpicture}
+\vfill
+\end{frame}
+
+%% ===========================================================================
+\begin{frame}{Free local operations}
+\begin{columns}[c]
+%% --- any LC-equivalent graph is a valid input -------------------------------
+\begin{column}{.5\textwidth}
+\centering
+\begin{tikzpicture}
+  % input orbit
+  \node[panel] (in) at (0,0) {\begin{tikzpicture}[scale=.55]
+    \node[pnode] (a) at (0,1) {}; \node[pnode] (b) at (1,1) {}; \node[pnode] (c) at (1,0) {}; \node[pnode] (d) at (0,0) {};
+    \draw[ge] (a)--(b) (a)--(c) (a)--(d);
+    \node at (1.7,.5) {$\sim$};
+    \begin{scope}[xshift=2.4cm]
+      \node[pnode] (a) at (0,1) {}; \node[pnode] (b) at (1,1) {}; \node[pnode] (c) at (1,0) {}; \node[pnode] (d) at (0,0) {};
+      \draw[ge] (a)--(b) (a)--(c) (a)--(d) (b)--(c) (b)--(d) (c)--(d);
+    \end{scope}
+  \end{tikzpicture}};
+  \node[opbox,minimum size=7mm] (f) at (0,-1.6) {$f$};
+  % output orbit
+  \node[panel] (out) at (0,-3.2) {\begin{tikzpicture}[scale=.55]
+    \node[pnode] (a) at (0,0) {}; \node[pnode] (b) at (.5,.87) {}; \node[pnode] (c) at (1,0) {};
+    \draw[ge] (a)--(b)--(c);
+    \node at (1.7,.43) {$\sim$};
+    \begin{scope}[xshift=2.4cm]
+      \node[pnode] (a) at (0,0) {}; \node[pnode] (b) at (.5,.87) {}; \node[pnode] (c) at (1,0) {};
+      \draw[ge] (a)--(b)--(c)--(a);
+    \end{scope}
+  \end{tikzpicture}};
+  \draw[bigarr,usiblue] (in) -- (f);
+  \draw[bigarr,usiblue] (f) -- (out);
+\end{tikzpicture}
+\cl{Any LC-equivalent graph is a valid input,\\ the output is defined up to LC.\\[4pt] 
+  In the language, we abstract away local op.}
+\end{column}
+%% --- f: defined on LC classes ------------------------------------------------
+\begin{column}{.46\textwidth}
+\[ f:\ [G]_{\LC} \;\longmapsto\; [G']_{\LC} \]
+\medskip
+\begin{itemize}\setlength{\itemsep}{6pt}
+  \item Input: a graph state, up to LC
+  \item Output: a graph state, up to LC
+  \item $f$ is \emph{not} a physical operation
+\end{itemize}
+\end{column}
+\end{columns}
+\end{frame}
+
+%% ===========================================================================
+\begin{frame}{LC-equivalent inputs, same (physical) operation}
+\centering
+\begin{tikzpicture}[scale=.8,q/.style={gvs,font=\tiny,minimum size=4.4mm},fq/.style={q,fuv}]
+  % the nine qubits of the input; A3, B2, C1 are fused with the triangle A, B, C
+  \newcommand{\inq}{%
+    \node[q] (A1) at (.6,2.9) {$A_1$}; \node[q] (A2) at (0,1.9) {$A_2$}; \node[fq] (A3) at (1.1,1.9) {$A_3$};
+    \node[q] (B1) at (4.5,2.9) {$B_1$}; \node[fq] (B2) at (4.2,1.9) {$B_2$}; \node[q] (B3) at (5.4,2.2) {$B_3$};
+    \node[fq] (A) at (2,1.6) {$A$}; \node[fq] (B) at (3.2,1.6) {$B$}; \node[fq] (C) at (2.6,.95) {$C$};
+    \node[fq] (C1) at (2.6,.25) {$C_1$}; \node[q] (C2) at (1.6,-.25) {$C_2$}; \node[q] (C3) at (3.6,-.25) {$C_3$};
+    \draw[ge] (A)--(B)--(C)--(A);
+    \draw[Ycol,dashed,line width=1pt] (A)--(A3) (B)--(B2) (C)--(C1);}
+  % the six qubits left after the fusions
+  \newcommand{\outq}{%
+    \node[q] (A1) at (.6,2.2) {$A_1$}; \node[q] (A2) at (0,1.2) {$A_2$};
+    \node[q] (B1) at (4.5,2.2) {$B_1$}; \node[q] (B3) at (5.4,1.5) {$B_3$};
+    \node[q] (C2) at (1.6,0) {$C_2$}; \node[q] (C3) at (3.6,0) {$C_3$};}
+  %% inputs
+  \begin{scope}
+    \inq \draw[ge] (A1)--(A3)--(A2) (B1)--(B2)--(B3) (C2)--(C1)--(C3);
+  \end{scope}
+  \node at (6.6,1.4) {\Large$\lcsim$};
+  \begin{scope}[xshift=7.8cm]
+    \inq \draw[ge] (A1)--(A2)--(A3) (B2)--(B1)--(B3) (C1)--(C3)--(C2);
+  \end{scope}
+  %% the same fusions on both
+  \draw[bigarr,Ycol!80!black] (2.6,-.7) -- (2.6,-1.4);
+  \draw[bigarr,Ycol!80!black] (10.4,-.7) -- (10.4,-1.4);
+  %% outputs
+  \begin{scope}[yshift=-4cm]
+    \outq
+    \draw[ge] (A1)--(B1) (A1)--(B3) (A1)--(C2) (A1)--(C3) (A2)--(B1) (A2)--(B3) (A2)--(C2) (A2)--(C3)
+              (B1)--(C2) (B1)--(C3) (B3)--(C2) (B3)--(C3);
+  \end{scope}
+  \node at (6.6,-2.9) {\Large$\not\lcisosim$};
+  \begin{scope}[xshift=7.8cm,yshift=-4cm]
+    \outq
+    \draw[ge] (A1)--(A2) (B1)--(B3) (C2)--(C3) (A2)--(B1)--(C3)--(A2);
+  \end{scope}
+\end{tikzpicture}
+\vspace{10pt}
+\cl{Same fusions $A A_3$, $B B_2$, $C C_1$ on LC-equivalent inputs: outputs are \textbf{not LC-equivalent}}
+\end{frame}
+
+%% ===========================================================================
+\begin{frame}{Relabeling inside a network node}
+\begin{columns}[c]
+%% --- motivation: the same linear graph state under two labellings ------------
+\begin{column}{.52\textwidth}
+\centering
+\begin{tikzpicture}[q/.style={gvs,font=\tiny,minimum size=5.4mm}]
+  \foreach \i in {1,...,5} \node[q] (p\i) at (\i*1.15,0) {$A_{\i}$};
+  \draw[ge] (p1)--(p2)--(p3)--(p4)--(p5);
+  \node at (2.3,-1.05) {\Large$\not\lcsim$};
+  \node at (4.6,-1.05) {\Large$\isosim$};
+  \begin{scope}[yshift=-2.1cm]
+    \foreach \i/\l in {1/1,2/3,3/2,4/4,5/5} \node[q] (r\i) at (\i*1.15,0) {$A_{\l}$};
+    \node[q,frv] at (r2) {$A_3$}; \node[q,frv] at (r3) {$A_2$};
+    \draw[ge] (r1)--(r2)--(r3)--(r4)--(r5);
+  \end{scope}
+\end{tikzpicture}
+\cl{The same linear graph state, specified with two\\ arbitrary labellings: not LC-equivalent}
+\end{column}
+%% --- which relabellings are allowed --------------------------------------------
+\begin{column}{.44\textwidth}
+\centering
+\begin{tikzpicture}
+  % two nodes; blue = one graph state, purple = another
+  \node[panel,minimum width=3.4cm,minimum height=1.5cm] (A) at (0,0) {};
+  \node[panel,minimum width=2.4cm,minimum height=1.5cm] (B) at (.5,-2.9) {};
+  \node[gvs,fill=Zcol!18,draw=Zcol] (q1) at (-1.1,0) {$1$};
+  \node[gvs,fill=Zcol!18,draw=Zcol] (q2) at (0,0) {$2$};
+  \node[gvs,fill=Pcol!18,draw=Pcol] (q3) at (1.1,0) {$3$};
+  \node[gvs,fill=Zcol!18,draw=Zcol] (q4) at (0,-2.9) {$4$};
+  \node[gvs,fill=Pcol!18,draw=Pcol] (q5) at (1.1,-2.9) {$5$};
+  \draw[Zcol,thick] (q1)--(q4) (q2)--(q4);
+  \draw[Pcol,thick] (q3)--(q5);
+  % allowed: same node, same graph state
+  \draw[usiblue,line width=1.1pt,{Stealth[length=2mm]}-{Stealth[length=2mm]}] (q1) to[bend left=55] (q2);
+  % not allowed: another graph state, or another node
+  \draw[Xcol,dashed,line width=1pt,{Stealth[length=2mm]}-{Stealth[length=2mm]}] (q2) to[bend left=55] node[midway,fill=Vcol!3,inner sep=.5pt,text=Xcol] {$\times$} (q3);
+  \draw[Xcol,dashed,line width=1pt,{Stealth[length=2mm]}-{Stealth[length=2mm]}] (q1) to[bend right=35] node[midway,fill=white,inner sep=.5pt,text=Xcol] {$\times$} (q4);
+\end{tikzpicture}
+\cl{Labels may be exchanged inside a node,\\ only within the same graph state}
+\end{column}
+\end{columns}
+\end{frame}
+
+%% ===========================================================================
+\begin{frame}{Relabelling merges whole LC classes}
+\begin{columns}[c]
+\begin{column}{.62\textwidth}
+\centering
+\begin{tikzpicture}[
+    mq/.style={circle,draw=Vcol,fill=Vcol!8,line width=.4pt,inner sep=0pt,minimum size=2.5mm,font=\fontsize{4}{4}\selectfont},
+    mf/.style={mq,draw=Acc,fill=Acc!35,line width=.6pt},       % qubit with a non-identity vertex basis
+    me/.style={Vcol,line width=.6pt},
+    lcb/.style={Vcol,dashed,line width=.8pt},                  % LC class boundary
+    isob/.style={Xcol,dash pattern=on 5pt off 3pt,line width=1.5pt},
+    lca/.style={Acc,line width=.55pt,{Stealth[length=1.2mm]}-{Stealth[length=1.2mm]}},   % related by LC
+    rla/.style={Xcol,line width=.55pt,{Stealth[length=1.2mm]}-{Stealth[length=1.2mm]},shorten <=3.9mm,shorten >=3.9mm}]  % related by relabelling  % LC+relabelling class boundary
+  \def\Rs{3.1}    % stabilizer states
+  \def\Rg{2.15}  % graph states
+  %% --- the three nested sets ------------------------------------------------
+  \draw[Vcol!60,line width=.8pt,fill=Vcol!4] (0,0) ellipse [x radius=4.45, y radius=3.38];
+  \onslide<2->
+  \draw[Vcol,line width=1pt,fill=white] (0,0) circle (\Rs);
+  \onslide<3->
+  \draw[usiblue,line width=1pt,fill=usiblue!7] (0,0) circle (\Rg);
+  \onslide<4->
+  %% --- LC classes: sectors of the stabilizer disc, no gaps -------------------
+  \foreach \a in {60,120,180,240,277,315,15} \draw[lcb] (0,0) -- (\a:\Rs);
+  \onslide<5->
+  %% --- LC + relabelling classes: unions of whole sectors ---------------------
+  \foreach \a in {60,240,315,15} \draw[isob] (0,0) -- (\a:\Rs);
+  \draw[isob] (0,0) circle (\Rs+.09);
+  \onslide<1->
+  %% --- one merged class: the three labelled LC classes of the 4-qubit path ---
+  % sector 60..120: path 1-2-3-4
+  \onslide<3->\mini{90:.98}{\draw[me] (1)--(2)--(3)--(4);}
+  \onslide<3->\mini{90:1.7}{\draw[me] (1)--(2)--(3)--(4) (1)--(3);}
+  \onslide<2->\mini{90:2.63}{\draw[me] (1)--(2)--(3)--(4); \node[mf] at (2) {2};}
+  % sector 120..180: path 1-3-2-4
+  \onslide<3->\mini{150:.98}{\draw[me] (1)--(3)--(2)--(4);}
+  \onslide<3->\mini{150:1.7}{\draw[me] (1)--(3)--(2)--(4) (1)--(2);}
+  \onslide<2->\mini{150:2.63}{\draw[me] (1)--(3)--(2)--(4); \node[mf] at (3) {3};}
+  % sector 180..240: path 1-4-2-3
+  \onslide<3->\mini{210:.98}{\draw[me] (1)--(4)--(2)--(3);}
+  \onslide<3->\mini{210:1.7}{\draw[me] (1)--(4)--(2)--(3) (1)--(2);}
+  \onslide<2->\mini{210:2.63}{\draw[me] (1)--(4)--(2)--(3); \node[mf] at (4) {4};}
+  %% --- a class that relabelling leaves alone: 4-qubit GHZ --------------------
+  \onslide<3->\mini{-15:.98}{\draw[me] (1)--(2) (1)--(3) (1)--(4);}
+  \onslide<3->\mini{-15:1.7}{\draw[me] (1)--(2)--(3)--(4)--(1) (1)--(3) (2)--(4);}
+  \onslide<2->\mini{-15:2.63}{\draw[me] (1)--(2) (1)--(3) (1)--(4); \node[mf] at (1) {1};}
+  \onslide<4->
+  %% --- how the drawn states are related ---------------------------------------
+  % gold: local Cliffords, inside one sector
+  \foreach \t in {90,150,210,-15} {
+    \draw[lca] ($(\t:.98)+(\t-90:.33)$) to[bend right=45] ($(\t:1.7)+(\t-90:.33)$);
+    \draw[lca] (\t:2.01) -- (\t:2.32);
+  }
+  \onslide<5->
+  % red: relabelling, across sectors of one merged class ((2 3), then (3 4))
+  \foreach \t/\u in {90/150,150/210} {
+    \draw[rla] (\t:1.7) -- (\u:1.7);
+    \draw[rla] (\t:2.63) to[bend right=28] (\u:2.63);
+  }
+  \onslide<4->
+  %% --- the rest, not drawn ---------------------------------------------------
+  \foreach \a in {258,296,37} {\node[text=Vcol!55] at (\a:1.4) {$\cdots$}; \node[text=Vcol!55] at (\a:2.63) {$\cdots$};}
+  \onslide<1->
+  %% --- a state outside the stabilizer set -----------------------------------
+  \node[circle,fill=Vcol!70,inner sep=1.1pt,label={[font=\scriptsize,text=Vcol,inner sep=1.5pt]above:$\ket{W}$}] at (3.78,.25) {};
+\end{tikzpicture}
+\end{column}
+\begin{column}{.36\textwidth}
+\small
+\onslide<1->
+\begin{tikzpicture}[baseline=-.6ex]\draw[Vcol!60,line width=.8pt,fill=Vcol!4] (0,0) circle (1.6mm);\end{tikzpicture}\ \ quantum states\par\smallskip
+\onslide<2->
+\begin{tikzpicture}[baseline=-.6ex]\draw[Vcol,line width=1pt] (0,0) circle (1.6mm);\end{tikzpicture}\ \ stabilizer states\par\smallskip
+\begin{tikzpicture}[baseline=-.6ex]\node[circle,draw=Acc,fill=Acc!35,line width=.6pt,inner sep=0pt,minimum size=2.7mm] {};\end{tikzpicture}\ \ basis $\neq(\cZ,\cX)$\par\smallskip
+\onslide<3->
+\begin{tikzpicture}[baseline=-.6ex]\draw[usiblue,line width=1pt,fill=usiblue!7] (0,0) circle (1.6mm);\end{tikzpicture}\ \ graph states\par\medskip
+\onslide<4->
+\begin{tikzpicture}[baseline=-.6ex]\draw[Vcol,dashed,line width=.8pt] (0,0) -- (.6,0);\end{tikzpicture}\ \ LC class\par\smallskip
+\begin{tikzpicture}[baseline=-.6ex]\draw[Acc,line width=.7pt,{Stealth[length=1.4mm]}-{Stealth[length=1.4mm]}] (0,0) -- (.6,0);\end{tikzpicture}\ \ local Cliffords\par\medskip
+\onslide<5->
+\begin{tikzpicture}[baseline=-.6ex]\draw[Xcol,dash pattern=on 5pt off 3pt,line width=1.5pt] (0,0) -- (.6,0);\end{tikzpicture}\ \ LC + relabelling class\par\smallskip
+\begin{tikzpicture}[baseline=-.6ex]\draw[Xcol,line width=.7pt,{Stealth[length=1.4mm]}-{Stealth[length=1.4mm]}] (0,0) -- (.6,0);\end{tikzpicture}\ \ relabelling\par
+\bigskip
+\onslide<4->
+Every stabilizer state is in exactly one class.\par\smallskip
+\onslide<5->
+Relabelling merges whole LC classes, never part of one.\par
+\onslide<1->
+\end{column}
+\end{columns}
+\end{frame}
+
+%% ===========================================================================
+%% Same picture in perspective: graph states as a plateau on the stabilizer states
+% \begin{frame}{Relabelling merges whole LC classes}
+% \begin{columns}[c]
+% \begin{column}{.62\textwidth}
+% \centering
+% \begin{tikzpicture}[x={(.94cm,0cm)},y={(0cm,.585cm)},z={(0cm,.735cm)},
+%     mq/.style={circle,draw=Vcol,fill=Vcol!8,line width=.4pt,inner sep=0pt,minimum size=2.4mm,font=\fontsize{4}{4}\selectfont},
+%     mf/.style={mq,draw=Acc,fill=Acc!35,line width=.6pt},
+%     me/.style={Vcol,line width=.6pt},
+%     lcb/.style={Vcol,dashed,line width=.7pt},
+%     isob/.style={Xcol,dash pattern=on 5pt off 3pt,line width=1.4pt},
+%     lca/.style={Acc,line width=.55pt,{Stealth[length=1.2mm]}-{Stealth[length=1.2mm]}},
+%     rla/.style={Xcol,line width=.55pt,{Stealth[length=1.2mm]}-{Stealth[length=1.2mm]}},
+%     sh/.style={shorten <=3.4mm,shorten >=3.4mm}]
+%   \def\Rq{4.9}   % quantum states (floor)
+%   \def\Rs{3.85}  % stabilizer states (first step)
+%   \def\Rg{2.6}   % graph states (plateau)
+%   \def\hS{.42}   % height of the stabilizer step
+%   \def\hG{.8}    % height of the graph-state plateau
+%   %% --- floor: quantum states --------------------------------------------------
+%   \fill[Vcol!5] \arcz{\Rq}{0}{0}{360} -- cycle;
+%   \draw[Vcol!60,line width=.8pt] \arcz{\Rq}{0}{0}{360} -- cycle;
+%   \fill[black,opacity=.07] \arcz{\Rs+.18}{-.08}{0}{360} -- cycle;
+%   %% --- stabilizer states: wall, then top ---------------------------------------
+%   \shade[left color=Vcol!38,right color=Vcol!12] \wallz{\Rs}{0}{\hS};
+%   \draw[Vcol,line width=.8pt] \arcz{\Rs}{0}{180}{360};
+%   \fill[white] \arcz{\Rs}{\hS}{0}{360} -- cycle;
+%   \draw[Vcol,line width=1pt] \arcz{\Rs}{\hS}{0}{360} -- cycle;
+%   \draw[Vcol,line width=.8pt] (-\Rs,0,0) -- (-\Rs,0,\hS) (\Rs,0,0) -- (\Rs,0,\hS);
+%   % class boundaries on the step and down its front wall
+%   \foreach \a in {210,270,330,30,67,105,165} \draw[lcb] ({\Rg*cos(\a)},{\Rg*sin(\a)},\hS) -- ({\Rs*cos(\a)},{\Rs*sin(\a)},\hS);
+%   \foreach \a in {210,270,330} \draw[lcb] ({\Rs*cos(\a)},{\Rs*sin(\a)},\hS) -- ({\Rs*cos(\a)},{\Rs*sin(\a)},0);
+%   \foreach \a in {210,30,105,165} \draw[isob] ({\Rg*cos(\a)},{\Rg*sin(\a)},\hS) -- ({\Rs*cos(\a)},{\Rs*sin(\a)},\hS);
+%   \draw[isob] ({\Rs*cos(210)},{\Rs*sin(210)},\hS) -- ({\Rs*cos(210)},{\Rs*sin(210)},0);
+%   \draw[isob] \arcz{\Rs-.09}{\hS}{0}{360} -- cycle;
+%   %% --- graph states: wall, then top ----------------------------------------------
+%   \fill[black,opacity=.045] \arcz{\Rg+.12}{\hS-.05}{180}{360} -- cycle;
+%   \shade[left color=usiblue!45,right color=usiblue!15] \wallz{\Rg}{\hS}{\hG};
+%   \draw[usiblue,line width=.8pt] \arcz{\Rg}{\hS}{180}{360};
+%   \foreach \a in {270,330} \draw[lcb] ({\Rg*cos(\a)},{\Rg*sin(\a)},\hS) -- ({\Rg*cos(\a)},{\Rg*sin(\a)},\hG);
+%   \draw[isob] ({\Rg*cos(210)},{\Rg*sin(210)},\hS) -- ({\Rg*cos(210)},{\Rg*sin(210)},\hG);
+%   \fill[usiblue!8] \arcz{\Rg}{\hG}{0}{360} -- cycle;
+%   \draw[usiblue,line width=1pt] \arcz{\Rg}{\hG}{0}{360} -- cycle;
+%   \draw[usiblue,line width=.8pt] (-\Rg,0,\hS) -- (-\Rg,0,\hG) (\Rg,0,\hS) -- (\Rg,0,\hG);
+%   \foreach \a in {210,270,330,30,67,105,165} \draw[lcb] (0,0,\hG) -- ({\Rg*cos(\a)},{\Rg*sin(\a)},\hG);
+%   \foreach \a in {210,30,105,165} \draw[isob] (0,0,\hG) -- ({\Rg*cos(\a)},{\Rg*sin(\a)},\hG);
+%   %% --- where the drawn states sit: two on the plateau, one on the step ------------
+%   \foreach \a in {240,300,0,135} {
+%     \coordinate (i\a) at ({.95*cos(\a)},{.95*sin(\a)},\hG);
+%     \coordinate (o\a) at ({2.08*cos(\a)},{2.08*sin(\a)},\hG);
+%     \coordinate (r\a) at ({3.25*cos(\a)},{3.25*sin(\a)},\hS);
+%   }
+%   % merged class: the three labelled LC classes of the 4-qubit path
+%   \mini{i240}{\draw[me] (1)--(2)--(3)--(4);}
+%   \mini{o240}{\draw[me] (1)--(2)--(3)--(4) (1)--(3);}
+%   \mini{r240}{\draw[me] (1)--(2)--(3)--(4); \node[mf] at (2) {2};}
+%   \mini{i300}{\draw[me] (1)--(3)--(2)--(4);}
+%   \mini{o300}{\draw[me] (1)--(3)--(2)--(4) (1)--(2);}
+%   \mini{r300}{\draw[me] (1)--(3)--(2)--(4); \node[mf] at (3) {3};}
+%   \mini{i0}{\draw[me] (1)--(4)--(2)--(3);}
+%   \mini{o0}{\draw[me] (1)--(4)--(2)--(3) (1)--(2);}
+%   \mini{r0}{\draw[me] (1)--(4)--(2)--(3); \node[mf] at (4) {4};}
+%   % a class that relabelling leaves alone: 4-qubit GHZ
+%   \mini{i135}{\draw[me] (1)--(2) (1)--(3) (1)--(4);}
+%   \mini{o135}{\draw[me] (1)--(2)--(3)--(4)--(1) (1)--(3) (2)--(4);}
+%   \mini{r135}{\draw[me] (1)--(2) (1)--(3) (1)--(4); \node[mf] at (1) {1};}
+%   %% --- how they are related ---------------------------------------------------------
+%   % gold: local Cliffords; the arrow to the step leaves the plateau
+%   \foreach \a in {240,300,0,135} \draw[lca,sh] (o\a) -- (r\a);
+%   \draw[lca] ($(i240)+(-.3,-.05)$) to[bend right=50] ($(o240)+(-.3,.05)$);
+%   \draw[lca] ($(i300)+(.3,-.05)$) to[bend left=50] ($(o300)+(.3,.05)$);
+%   \draw[lca] ($(i0)+(.05,.3)$) to[bend left=50] ($(o0)+(-.05,.3)$);
+%   \draw[lca] ($(i135)+(-.05,-.3)$) to[bend left=50] ($(o135)+(.05,-.3)$);
+%   % red: relabelling, across sectors of the merged class
+%   \draw[rla,sh] (o240) -- (o300);  \draw[rla,sh] (o300) -- (o0);
+%   \draw[rla,sh] (r240) to[bend right=14] (r300);  \draw[rla,sh] (r300) to[bend right=14] (r0);
+%   %% --- the rest, not drawn ------------------------------------------------------------
+%   \foreach \a in {48,86,188} {
+%     \node[text=Vcol!55] at ({1.5*cos(\a)},{1.5*sin(\a)},\hG) {$\cdots$};
+%   }
+%   %% --- a state outside the stabilizer set ---------------------------------------------
+%   \node[circle,fill=Vcol!70,inner sep=1.1pt,label={[font=\scriptsize,text=Vcol,inner sep=1.5pt]right:$\ket{W}$}] at ({4.42*cos(-60)},{4.42*sin(-60)},0) {};
+% \end{tikzpicture}
+% \end{column}
+% \begin{column}{.36\textwidth}
+% \small
+% \begin{tikzpicture}[baseline=-.6ex]\draw[Vcol!60,line width=.8pt,fill=Vcol!4] (0,0) circle (1.6mm);\end{tikzpicture}\ \ quantum states\par\smallskip
+% \begin{tikzpicture}[baseline=-.6ex]\draw[Vcol,line width=1pt] (0,0) circle (1.6mm);\end{tikzpicture}\ \ stabilizer states\par\smallskip
+% \begin{tikzpicture}[baseline=-.6ex]\draw[usiblue,line width=1pt,fill=usiblue!7] (0,0) circle (1.6mm);\end{tikzpicture}\ \ graph states\par\medskip
+% \begin{tikzpicture}[baseline=-.6ex]\draw[Vcol,dashed,line width=.8pt] (0,0) -- (.6,0);\end{tikzpicture}\ \ LC class\par\smallskip
+% \begin{tikzpicture}[baseline=-.6ex]\draw[Xcol,dash pattern=on 5pt off 3pt,line width=1.5pt] (0,0) -- (.6,0);\end{tikzpicture}\ \ LC + relabelling class\par\smallskip
+% \begin{tikzpicture}[baseline=-.6ex]\draw[Acc,line width=.7pt,{Stealth[length=1.4mm]}-{Stealth[length=1.4mm]}] (0,0) -- (.6,0);\end{tikzpicture}\ \ local Cliffords\par\smallskip
+% \begin{tikzpicture}[baseline=-.6ex]\draw[Xcol,line width=.7pt,{Stealth[length=1.4mm]}-{Stealth[length=1.4mm]}] (0,0) -- (.6,0);\end{tikzpicture}\ \ relabelling\par\smallskip
+% \begin{tikzpicture}[baseline=-.6ex]\node[circle,draw=Acc,fill=Acc!35,line width=.6pt,inner sep=0pt,minimum size=2.7mm] {};\end{tikzpicture}\ \ basis $\neq(\cZ,\cX)$\par
+% \bigskip
+% Every stabilizer state is in exactly one class.\par\smallskip
+% Relabelling merges whole LC classes, never part of one.
+% \end{column}
+% \end{columns}
+% \end{frame}
+
+%% ===========================================================================
+\begin{frame}{Relabelling and local complementation commute}
+\begin{columns}[c]
+\begin{column}{.5\textwidth}
+\centering
+\begin{tikzpicture}[scale=1.15]
+  % qubits at fixed positions: a relabelling moves the edges
+  \begin{scope}
+    \sqfour{1}{2}{3}{4} \draw[ge] (1)--(2)--(3)--(4);
+  \end{scope}
+  \begin{scope}[xshift=3.2cm]
+    \sqfour{1}{2}{3}{4} \draw[ge] (1)--(2)--(3)--(4); \draw[newe] (1)--(3);
+  \end{scope}
+  \begin{scope}[yshift=-2.5cm]
+    \sqfour{1}{2}{3}{4} \draw[ge] (2)--(3)--(4)--(1);
+  \end{scope}
+  \begin{scope}[xshift=3.2cm,yshift=-2.5cm]
+    \sqfour{1}{2}{3}{4} \draw[ge] (2)--(3)--(4)--(1); \draw[newe] (2)--(4);
+  \end{scope}
+  \draw[bigarr] (1.5,.5) -- node[above] {$\localComp 2$} (2.7,.5);
+  \draw[bigarr] (1.5,-2) -- node[above] {$\localComp 3$} (2.7,-2);
+  \draw[bigarr,usiblue] (.5,-.45) -- node[left,text=usiblue] {$\pi$} (.5,-1.05);
+  \draw[bigarr,usiblue] (3.7,-.45) -- node[right,text=usiblue] {$\pi$} (3.7,-1.05);
+\end{tikzpicture}
+\end{column}
+\begin{column}{.46\textwidth}
+\[ \pi\big(\localComp v(G)\big) = \localComp{\pi(v)}\big(\pi(G)\big) \]
+\medskip
+\[ G \lcisosim H \iff \pi(G) \lcsim H \ \text{ for some } \pi \]
+\cl{Any mix of the two reduces to local complementations followed by one relabelling}
+\end{column}
+\end{columns}
+\end{frame}
+
+%% ===========================================================================
+% \begin{frame}{Same size, different LC+iso class}
+% \centering
+% \begin{tikzpicture}[scale=1.05,
+%     splt/.style={draw=Xcol,dashed,line width=.9pt},
+%     idle/.style={gvs,draw=Xcol,fill=Xcol!12},
+%     note/.style={font=\scriptsize,inner sep=1.5pt},
+%     big/.style={font=\large\bfseries,inner sep=1pt}]
+%   % both graphs on the same 3|3 split: three qubits above the dashed line, three below;
+%   % gold = edges crossing the split
+%   % L: a 4-cycle with pendants on two opposite corners
+%   \begin{scope}
+%     \node[gvs] (a) at (0,1.5) {}; \node[idle] (c) at (1.5,1.5) {}; \node[gvs] (d) at (3,1.5) {};
+%     \node[gvs] (b) at (0,0) {};   \node[gvs] (f) at (1.5,0) {};    \node[gvs] (e) at (3,0) {};
+%     \draw[ge] (a)--(c)--(d);
+%     \draw[newe] (a)--(b) (d)--(e) (a)--(f) (d)--(f);
+%     \draw[splt] (-.8,.75) -- (3.8,.75);
+%     \node[note,text=Xcol,above=1pt of c] {no link across};
+%     \node[big,text=Xcol] at (1.5,-.95) {2 ebits at most};
+%     \node[note,text=Vcol] at (1.5,-1.45) {no better in any of the 20 splits};
+%   \end{scope}
+%   \node at (5.1,.75) {\Large$\not\lcisosim$};
+%   % R: a triangle with one pendant per corner
+%   \begin{scope}[xshift=6.4cm]
+%     \node[gvs] (a) at (0,1.5) {}; \node[gvs] (c) at (1.5,1.5) {}; \node[gvs] (d) at (3,1.5) {};
+%     \node[gvs] (b) at (0,0) {};   \node[gvs] (f) at (1.5,0) {};   \node[gvs] (e) at (3,0) {};
+%     \draw[ge] (a)--(c)--(d) (a) to[bend left=42] (d);
+%     \draw[newe] (a)--(b) (c)--(f) (d)--(e);
+%     \draw[splt] (-.8,.75) -- (3.8,.75);
+%     \node[note,text=Xcol,anchor=west] at (3.8,.75) {$3\,|\,3$ split};
+%     \node[big,text=Acc!85!black] at (1.5,-.95) {3 ebits};
+%     \node[note,text=Vcol] at (1.5,-1.45) {one partner each: 8 of the 20 splits};
+%   \end{scope}
+% \end{tikzpicture}
+% \cl{Local Cliffords change no split's ebits; relabelling only permutes the splits}
+% \end{frame}
+
+% %% ===========================================================================
+% \begin{frame}{Local complementation redraws edges, not ebits}
+% \centering
+% \begin{tikzpicture}[scale=.8,
+%     splt/.style={draw=Xcol,dashed,line width=.9pt},
+%     lv/.style={gvs,draw=usiblue,fill=usiblue!55,line width=.9pt},    % vertex of the local complementation
+%     ln/.style={gvs,draw=usiblue,fill=usiblue!25,line width=.9pt},    % its neighbours
+%     note/.style={font=\scriptsize,inner sep=1.5pt,text=Vcol},
+%     big/.style={font=\bfseries,inner sep=1pt},
+%     lcarr/.style={usiblue,line width=.9pt,-{Stealth[length=2mm]}}]
+%   % same two graphs and the same 3|3 split as the previous frame; gold = edges crossing the split
+%   %% --- 4-cycle with two pendants ----------------------------------------------
+%   \begin{scope}
+%     \sixsplit{lv}{ln}{gvs}{ln}{ln}{gvs} \node at (a) {\scriptsize$v$};
+%     \draw[ge] (a)--(c)--(d);
+%     \draw[newe] (a)--(b) (d)--(e) (a)--(f) (d)--(f);
+%     \undersplit{4}{2}{Xcol}
+%     \lcstep
+%   \end{scope}
+%   \begin{scope}[xshift=6.4cm]
+%     \sixsplit{lv}{ln}{gvs}{ln}{ln}{gvs} \node at (a) {\scriptsize$v$};
+%     \draw[ge] (a)--(c)--(d) (b)--(f);
+%     \draw[newe] (a)--(b) (d)--(e) (a)--(f) (d)--(f) (c)--(b) (c)--(f);
+%     \undersplit{6}{2}{Xcol}
+%   \end{scope}
+%   %% --- triangle with three pendants -------------------------------------------
+%   \begin{scope}[yshift=-4.1cm]
+%     \sixsplit{lv}{ln}{ln}{ln}{gvs}{gvs} \node at (a) {\scriptsize$v$};
+%     \draw[ge] (a)--(c)--(d) (a) to[bend left=42] (d);
+%     \draw[newe] (a)--(b) (c)--(f) (d)--(e);
+%     \undersplit{3}{3}{Acc!85!black}
+%     \lcstep
+%   \end{scope}
+%   \begin{scope}[xshift=6.4cm,yshift=-4.1cm]
+%     \sixsplit{lv}{ln}{ln}{ln}{gvs}{gvs} \node at (a) {\scriptsize$v$};
+%     \draw[ge] (a)--(c) (a) to[bend left=42] (d);
+%     \draw[newe] (a)--(b) (c)--(f) (d)--(e) (b)--(c) (b)--(d);
+%     \undersplit{5}{3}{Acc!85!black}
+%   \end{scope}
+% \end{tikzpicture}
+% \cl{LC at $v$ = single-qubit gates on $v$ and its neighbours (blue): none acts across the split}
+% \end{frame}
+
+%% ===========================================================================
+\begin{frame}{One representative per LC+iso class}
+\centering
+\begin{tikzpicture}[scale=1.15]
+  \begin{scope}
+    \sqfour{0}{1}{2}{3} \draw[ge] (0)--(1)--(2)--(3);
+  \end{scope}
+  \begin{scope}[xshift=2.2cm]
+    \sqfour{0}{1}{2}{3} \draw[ge] (2)--(0)--(3)--(1);
+  \end{scope}
+  \begin{scope}[xshift=4.4cm]
+    \sqfour{0}{1}{2}{3} \draw[ge] (0)--(1)--(2)--(3)--(0);
+  \end{scope}
+  \draw[decorate,decoration={brace,amplitude=5pt},Vcol] (5.7,1.2) -- (5.7,-.2);
+  \draw[bigarr,usiblue] (6.1,.5) -- node[above,text=usiblue] {$\crep$} (7.5,.5);
+  \begin{scope}[xshift=8.1cm]
+    \sqfour{0}{1}{2}{3} \draw[newe] (0)--(2)--(3)--(1);
+  \end{scope}
+\end{tikzpicture}
+
+\medskip
+\[ \crep(G) = \can\Big(\operatorname*{arg\,min}_{H\in\Orb(G)} \big(|E(H)|,\ \cert(H)\big)\Big) \]
+\begin{columns}[T]
+\begin{column}{.46\textwidth}
+\begin{itemize}
+  \item $G \lcisosim H \iff \crep(G) = \crep(H)$
+  \item Fewest edges in the class
+\end{itemize}
+\end{column}
+\begin{column}{.46\textwidth}
+\begin{itemize}
+  \item WIP efficient (quasi-)polynomial algorithm to unique LC+iso representative
+\end{itemize}
+\end{column}
+\end{columns}
+\end{frame}
+
+\end{document}

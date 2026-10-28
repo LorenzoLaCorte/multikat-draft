@@ -1,0 +1,46 @@
+% ---------------------------------------------------------------------------
+% LP equivalence: the paths B1-A1-A2-B2 and B1-A2-A1-B2 differ only by the
+% local relabeling A1 <-> A2 (accent vertices), both qubits of node A.
+% Dashed boxes = network nodes A (top) and B (bottom).  Both panels are drawn
+% in path order, so they have the same shape.  Kets list qubits in order
+% A1 A2 B1 B2, up to H on B1 and B2.
+% ---------------------------------------------------------------------------
+{\footnotesize
+% panel: #1..#4 = labels in path order ; #2,#3 highlighted ; #5 = ket ; #6 positioning #7 anchor (opposite of #6)
+\newcommand{\lpp}[7]{%
+  \begin{tikzpicture}[baseline={(0,0.4)},x=1cm,y=1cm,
+      gv/.append style={minimum size=6.5mm,font=\footnotesize},
+      netn/.style={draw=Vcol!70,dashed,rounded corners=4pt,fill=##1,
+                   fill opacity=0.12,inner sep=2.5pt}]
+    \node[gv] (p1) at (0,0) {$#1$};
+    \node[gv,frv] (p2) at (0,1.05) {$#2$};
+    \node[gv,frv] (p3) at (1.15,1.05) {$#3$};
+    \node[gv] (p4) at (1.15,0) {$#4$};
+    \begin{pgfonlayer}{background}
+      \node[netn=Zcol,fit=(p2)(p3)] (nA) {};
+      \node[netn=Ycol,fit=(p1)(p4)] (nB) {};
+    \end{pgfonlayer}
+    \node[font=\scriptsize\bfseries,text=Vcol,anchor=#7] at (nA.#6) {A};
+    \node[font=\scriptsize\bfseries,text=Vcol,anchor=#7] at (nB.#6) {B};
+    \draw[ge](p1)--(p2)--(p3)--(p4);
+    \node[text=Vcol,font=\scriptsize,align=center,anchor=north] at (0.575,-0.45) {#5};
+  \end{tikzpicture}}
+\setlength{\tabcolsep}{2pt}%
+\setlength{\arraycolsep}{2.5pt}%
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{@{}ccc@{}}
+\lpp{B1}{A1}{A2}{B2}{$\ket{0000}+\ket{0101}$\\$+\ket{1010}-\ket{1111}$}{west}{east}
+  & \begin{tabular}{@{}c@{}}
+      {\normalsize\tikz[baseline=-0.5ex]\draw[{To}-{To}] (0,0) --
+        node[above,inner sep=2pt]{\small$\permnoletter{A1}{A2}$} (1.9,0);} \\[2pt]
+      $\scriptstyle \begin{bNiceArray}{cc|cc}[first-row,first-col,margin]
+           & \scriptscriptstyle A1 & \scriptscriptstyle A2 & \scriptscriptstyle B1 & \scriptscriptstyle B2 \\
+      \scriptscriptstyle A1 & 0 & 1 & \color{gray}0 & \color{gray}0 \\
+      \scriptscriptstyle A2 & 1 & 0 & \color{gray}0 & \color{gray}0 \\ \hline
+      \scriptscriptstyle B1 & \color{gray}0 & \color{gray}0 & 1 & 0 \\
+      \scriptscriptstyle B2 & \color{gray}0 & \color{gray}0 & 0 & 1 \\
+      \end{bNiceArray}$
+    \end{tabular}
+  & \lpp{B1}{A2}{A1}{B2}{$\ket{0000}+\ket{1001}$\\$+\ket{0110}-\ket{1111}$}{east}{west}
+\end{tabular}}%
+}

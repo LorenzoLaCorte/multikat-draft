@@ -1,0 +1,25 @@
+% ---------------------------------------------------------------------------
+% Vertex basis vs dual basis on the linear graph 1-2-3, frame L = (H, HS, X).
+%   vertex basis (L Z L^dag, L X L^dag)   : (X,Z) (X,-Y) (-Z,X)
+%   dual basis   [L^dag Z L, L^dag X L]   : [X,Z] [-Y,Z] [-Z,X]
+% Same notation/placement as measure_chain: dual basis in [...] stacked above
+% the vertex basis in (...).  Frame L_v (not stored) below the vertex.
+% H and X are self-conjugate, so vertices 1 and 3 agree; HS is not (gold).
+% ---------------------------------------------------------------------------
+\begin{tikzpicture}[font=\small,x=1cm,y=1cm,
+    gv/.append style={minimum size=7mm,font=\small},
+    bs/.style={align=center,anchor=south}]
+  \def\cA{0}\def\cB{1.9}\def\cC{3.8}
+  \node[gv] (n1) at (\cA,0) {$1$};
+  \node[gv,frv] (n2) at (\cB,0) {$2$};
+  \node[gv] (n3) at (\cC,0) {$3$};
+  \draw[ge] (n1)--(n2)--(n3);
+  % dual basis [..] above vertex basis (..)
+  \node[bs] at (\cA,0.4) {$[\cX,\cZ]$\\[3pt]$(\cX,\cZ)$};
+  \node[bs] at (\cB,0.4) {$[-\cY,\cZ]$\\[3pt]$(\cX,-\cY)$};
+  \node[bs] at (\cC,0.4) {$[-\cZ,\cX]$\\[3pt]$(-\cZ,\cX)$};
+  % frame (not stored)
+  \node[text=Vcol!70] at (\cA,-0.65) {$H$};
+  \node[text=Vcol!70] at (\cB,-0.65) {$HS$};
+  \node[text=Vcol!70] at (\cC,-0.65) {$X$};
+\end{tikzpicture}

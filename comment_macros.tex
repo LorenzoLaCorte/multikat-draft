@@ -1,0 +1,157 @@
+
+% \newcommand{\todo}[1]{\textcolor{red}{[TODO: #1]}}
+
+\newcommand{\patr}[1]{\textcolor{Xcol}{[P: #1]}}
+\newcommand{\anita}[1]{\textcolor{yellow!70!black}{[AN: #1]}}
+\newcommand{\llc}[1]{\textcolor{Ycol}{[L: #1]}}
+\newcommand{\ken}[1]{\textcolor{Pcol}{[K: #1]}}
+\newcommand{\ale}[1]{\textcolor{Zcol}{[AL: #1]}}
+
+% side-page notes
+
+
+\usepackage[onlyowner,footnotesize]{swnotes}
+% \usepackage[disable]{swnotes}
+\setlength{\marginparwidth}{1.1cm}
+
+\newcommand{\kennote}[1]{\annote{#1}{kg}{Pcol!40}}
+\newcommand{\alenote}[1]{\annote{#1}{ale}{Zcol!40}}
+\newcommand{\llcnote}[1]{\annote{#1}{llc}{Ycol!40}}
+\newcommand{\anote}[1]{\annote{#1}{anita}{yellow!90!black!70}}
+\newcommand{\pnote}[1]{\annote{#1}{p@}{Xcol!40}}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Hover popups. The margin boxes print only the owner tag (onlyowner), so each
+% note also carries a PDF sticky-note annotation with the full text: hovering
+% the small icon inside the box shows it in any viewer that supports comments
+% (Acrobat, Chrome, Firefox/pdf.js, Evince, Okular, Overleaf's viewer).
+\usepackage{pdfcomment}
+\makeatletter
+% Two adjustments to pdfcomment's sticky-note dictionary:
+% (1) no /CreationDate and /M, so the popup shows no timestamp;
+% (2) a rich-text body (/RC) with an explicit black colour: viewers such as
+%     pdf.js (Overleaf) otherwise inherit the UI theme's text colour for the
+%     popup, white in dark mode. /RC must carry the same text as /Contents, in
+%     PDFDoc encoding, hence the second \pdfstringdef with unicode switched off.
+\newcommand{\pc@hash}{\string##}% a catcode-12 "#" for the CSS colour below
+\let\pc@orig@encode@PDF\pc@encode@PDF
+\renewcommand{\pc@encode@PDF}[1]{%
+  \pc@orig@encode@PDF{#1}%
+  \begingroup\Hy@unicodefalse\pdfstringdef\pc@rc@tmp{\pc@comment@deadline}%
+  \global\let\pc@rc@contents\pc@rc@tmp\endgroup}
+\renewcommand{\pc@annot@text}{%
+  \pc@lopt@c\space
+  /CA \pc@lopt@opacity\space
+  /T (\pc@pdfenc@author)\space
+  /Subj (\pc@pdfenc@subject)\space
+  /Name /\pc@lopt@icon\space
+  /Contents (\pc@pdfenc@contents)\space
+  /RC (<?xml version="1.0"?><body xmlns="http://www.w3.org/1999/xhtml" xmlns:xfa="http://www.xfa.org/schema/xfa-data/1.0/" xfa:APIVersion="Acrobat:11.0" xfa:spec="2.0.2"><p style="color:\pc@hash 000000">\pc@rc@contents</p></body>)\space
+  /Open \pc@lopt@open\space
+  \ifx\swnotes@popupnum\@empty\else/Popup \swnotes@popupnum\space 0 R\space\fi
+  /F 4\space}
+% Popup side. Each sticky note gets an explicit /Popup annotation. For icons
+% in the left half of the page it opens to the right of the icon, otherwise to
+% the left. The icon's position comes from \pdfsavepos via the .aux file, so
+% the side is right from the second run on.
+% - Acrobat, Evince: place the popup at the /Popup's own /Rect.
+% - pdf.js (Overleaf, Firefox, VS Code): ignores that /Rect and opens the popup
+%   5bp right of its /Parent's /Rect. For left-opening popups the /Parent is
+%   therefore a decoy: a copy of the sticky note's dictionary, not listed on
+%   the page, with a 1bp /Rect one popup-width left of the icon. pdf.js also
+%   reads title and text from the /Parent, hence the copy. Its popup is
+%   max-content wide, capped at 45% of the page, in a 9bp sans font with 6bp
+%   padding; the width estimate below mirrors that.
+\let\swnotes@popupnum\@empty
+\newcount\swnotes@popupcnt
+\newcommand{\swnotes@savepos}[3]{%
+  \expandafter\gdef\csname swnotes@x@#1\endcsname{#2}%
+  \expandafter\gdef\csname swnotes@y@#1\endcsname{#3}}
+\AtBeginDocument{\immediate\write\@mainaux{\string\providecommand\string\swnotes@savepos[3]{}}}
+\newlength{\swnotes@popupwd}
+\newlength{\swnotes@popupht}\setlength{\swnotes@popupht}{110bp}
+\newlength{\swnotes@tagwd}
+\newlength{\swnotes@tmpwd}
+\newlength{\swnotes@decoyx}
+\newlength{\swnotes@decoyy}
+\newcommand{\swnotes@bp}[1]{\strip@pt\dimexpr(#1)*7200/7227\relax}% pt -> bp
+\protected\def\swnotes@sticky#1#2#3{%
+  \ifdefined\pdfsavepos
+    \global\advance\swnotes@popupcnt\@ne
+    \pdfsavepos
+    \edef\swnotes@tmp{\write\@auxout{\string\swnotes@savepos{\the\swnotes@popupcnt}%
+      {\noexpand\the\pdflastxpos}{\noexpand\the\pdflastypos}}}\swnotes@tmp
+    % estimated pdf.js popup width: widest of text and title, plus padding
+    \settowidth{\swnotes@popupwd}{\fontsize{9bp}{11bp}\sffamily #1}%
+    \settowidth{\swnotes@tmpwd}{\fontsize{9bp}{11bp}\sffamily\bfseries #2}%
+    \ifdim\swnotes@tmpwd>\swnotes@popupwd\setlength{\swnotes@popupwd}{\swnotes@tmpwd}\fi
+    \addtolength{\swnotes@popupwd}{16bp}%
+    \ifdim\swnotes@popupwd>.45\paperwidth\setlength{\swnotes@popupwd}{.45\paperwidth}\fi
+    \settowidth{\swnotes@tagwd}{\swnotes@content{#1}{#2}\,}%
+    \pdfannot reserveobjnum\xdef\swnotes@popupnum{\the\pdflastannot}%
+    \pdfcomment[icon=Comment,color=#3,author={#2}]{#1}%
+    \xdef\swnotes@parentnum{\the\pdflastannot}%
+    \swnotes@ifleft{%
+      % decoy /Parent for pdf.js; its /Rect is absolute, hence the saved position
+      \setlength{\swnotes@decoyx}{\dimexpr\csname swnotes@x@\the\swnotes@popupcnt\endcsname sp
+        -\swnotes@tagwd-\swnotes@popupwd-13bp\relax}%
+      \setlength{\swnotes@decoyy}{\dimexpr\csname swnotes@y@\the\swnotes@popupcnt\endcsname sp
+        +\normalbaselineskip\relax}%
+      \begingroup\let\swnotes@popupnum\@empty
+      \immediate\pdfobj{<< /Type /Annot /Subtype /Text
+        /Rect [\swnotes@bp{\swnotes@decoyx-1bp} \swnotes@bp{\swnotes@decoyy-1bp}
+               \swnotes@bp{\swnotes@decoyx} \swnotes@bp{\swnotes@decoyy}]
+        \pc@annot@text >>}%
+      \xdef\swnotes@parentnum{\the\pdflastobj}\endgroup
+    }{}%
+    \hbox to 0pt{%
+      \swnotes@ifleft
+        {\kern\dimexpr-\swnotes@tagwd-\swnotes@popupwd-8bp\relax}%
+        {\kern\dimexpr\normalbaselineskip+2bp\relax}%
+      \pdfannot useobjnum \swnotes@popupnum\space
+        width \swnotes@popupwd\space height \normalbaselineskip\space
+        depth \dimexpr\swnotes@popupht-\normalbaselineskip\relax
+        {/Subtype /Popup /Parent \swnotes@parentnum\space 0 R /Open false}%
+      \hss}%
+    \global\let\swnotes@popupnum\@empty
+  \else
+    \pdfcomment[icon=Comment,color=#3,author={#2}]{#1}%
+  \fi}
+% true branch iff the current note's saved icon position is in the right half
+\newcommand{\swnotes@ifleft}{%
+  \expandafter\ifx\csname swnotes@x@\the\swnotes@popupcnt\endcsname\relax
+    \expandafter\@secondoftwo
+  \else\ifdim\csname swnotes@x@\the\swnotes@popupcnt\endcsname sp>.5\paperwidth
+    \expandafter\expandafter\expandafter\@firstoftwo
+  \else
+    \expandafter\expandafter\expandafter\@secondoftwo
+  \fi\fi}
+% Two hover targets per note. The owner tag is wrapped in \pdftooltip, a form
+% field whose /TU text browsers (pdf.js, Chrome) show as a native tooltip:
+% positioned by the browser below the cursor, always inside the window, in the
+% normal text colour. The sticky-note icon stays for viewers without tooltips
+% (Evince, Okular); pdf.js always opens its popup to the right of the icon,
+% which is what overflowed the window for notes in the right margin.
+\newcommand{\swnotes@hover}[3]{\pdftooltip{\swnotes@content{#1}{#2}\,\swnotes@sticky{#1}{#2}{#3}}{#1}}
+\renewcommand{\swnotes@draw@margin}[3]{\marginnote{\todonotes@todo[color=#3,inline]{\swnotes@hover{#1}{#2}{#3}}}}
+\renewcommand{\swnotes@draw@todo}[3]{\todonotes@todo[color=#3]{\swnotes@hover{#1}{#2}{#3}}}
+\makeatother
+ 
+

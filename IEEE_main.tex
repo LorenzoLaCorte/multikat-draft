@@ -1,0 +1,110 @@
+\documentclass[acmsmall,11pt,screen,nonacm]{acmart}
+
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage[T1]{fontenc}
+
+\usepackage{bm}
+\usepackage[overload]{empheq}  % For braced-style systems of equations
+
+% TABLES
+\usepackage{tabularx}
+\usepackage{colortbl}
+\usepackage{booktabs}
+
+% ALGORITHMS (PSEUDO-CODE)
+\usepackage{algorithm}
+\usepackage{algorithmic}
+
+% REFERENCES
+\hypersetup{colorlinks=true,linkcolor=black,anchorcolor=black,citecolor=black,
+  filecolor=black,menucolor=black,runcolor=black,urlcolor=black}
+\usepackage[nameinlink]{cleveref}
+\citestyle{acmnumeric}
+\setcitestyle{square,sort&compress}
+
+\usepackage{enumitem}
+
+% OTHER PACKAGES
+% \usepackage{thmtools} % Produces duplicate-def errors
+\usepackage{comment} % Comment part of code
+\usepackage{tikz}
+\usepackage{tikz-3dplot}
+\usepackage{quantikz}
+\usepackage{braket}
+\usepackage{placeins}
+\usepackage{float}
+\usepackage{wrapfig}
+\usepackage{nicematrix}
+
+\input{macros}
+\input{comment_macros}
+\input{acr}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%% MAIN %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+\begin{document}
+
+\title{Towards the Specification of Stabilizer State Distribution}
+
+\author{Alessandro Ruzza}
+\email{alessandro.ruzza@usi.ch}
+\author{Anita Buckley}
+\author{Lorenzo La Corte}
+\email{lorenzo.la.corte@usi.ch}
+\author{Patrick Eugster}
+\affiliation{%
+  \institution{Universit\`a della Svizzera italiana}
+  \city{Lugano}
+  \country{Switzerland}}
+
+%% acmart: abstract and keywords go before \maketitle
+\begin{abstract}
+
+Memoryless quantum-network protocols leverage large photonic graph states to distribute entanglement without relying on long-lived quantum memories. 
+
+... \ale{Argue for requiring abstractions}
+
+... \ale{Argue for }
+%
+% In this work, we present the Eulerian frame, a GSLC representation that encodes each qubit's local Clifford information as a pair of signed Pauli operators. We derive systematic local update rules for Clifford gates and Pauli measurements. 
+% %
+% 
+\end{abstract}
+
+\keywords{multipartite entanglement, stabilizer states, quantum networks, algebraic language}
+
+\maketitle
+
+\section{Introduction}
+\label{sec:introduction}
+
+\input{sections/intro}
+
+% \section{Scenario (Network) Description}
+% \label{sec:scenario}
+% \input{sections/scenario_def}
+
+\section{Language Abstractions}
+\label{sec:abstractions}
+
+\input{sections/lang_abstractions}
+
+\section{Language Semantics}
+\label{sec:semantics}
+
+\input{sections/lang_semantics}
+
+\section{Conclusion and Future Work}
+\label{sec:conclusion}
+
+\input{sections/conclusion}
+
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{bib}
+
+\end{document}

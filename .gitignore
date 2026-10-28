@@ -1,0 +1,24 @@
+*.pdf
+!figures/**/*.pdf
+# *.md
+
+*.aux
+*.fdb*
+*.out
+*.log
+*.fls
+*.upa
+*.upb
+*.nav 
+*.snm
+*.toc
+*.gz
+*.bbl
+*.blg
+# *.
+# *.
+
+simulator/
+gate_counter/
+__pycache__/
+netsquid*/

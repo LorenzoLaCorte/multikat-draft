@@ -1,0 +1,181 @@
+% Three primitives of a memory-based (1G) repeater, side by side:
+%   (a) heralded entanglement generation  (b) entanglement swapping
+%   (c) entanglement distillation
+%
+% Reading convention, held in every panel:
+%   a qubit drawn INSIDE a node box is stored in that node's memory;
+%   a qubit drawn OUTSIDE any box is in flight down the channel.
+%   Only (a) has a qubit in flight -- (b) and (c) are purely local operations.
+%
+% Palette and styles come from sections/macros-eulvec.tex:
+%   Vcol = structure, Zcol = existing links, Xcol = measurements,
+%   Acc  = the link produced by the step.
+\begin{tikzpicture}[
+  sbox/.style = {rectangle, rounded corners=2pt, draw=Vcol, thick,
+                 fill=Vcol!8, inner sep=3pt},
+  mbox/.style = {sbox, draw=Xcol, line width=1.1pt, fill=Xcol!6},
+  dbox/.style = {sbox, draw=Vcol!30, fill=Vcol!4},
+  nlab/.style = {font=\small, inner sep=1pt, text=Vcol},
+  dlab/.style = {nlab, text=Vcol!40},
+  qb/.style   = {circle, draw=Vcol, fill=Vcol!12, minimum size=3mm,
+                 inner sep=0pt, line width=.5pt},
+  slot/.style = {qb, draw=Vcol!35, fill=none, dashed},   % empty memory slot
+  fly/.style  = {qb, draw=Zcol, fill=Zcol!15},           % qubit in flight
+  link/.style = {Zcol, line width=1pt},
+  newlink/.style = {Acc, line width=1.4pt},
+  photon/.style = {Zcol, line width=.9pt, dashed, -{Stealth[length=1.8mm]}},
+  stepar/.style = {-{Stealth[length=2.6mm]}, line width=1.1pt, Vcol},
+  ttl/.style  = {font=\small\bfseries, text=Vcol, align=center},
+  ann/.style  = {font=\scriptsize, text=Vcol!75, align=center},
+  lbl/.style  = {font=\scriptsize, align=center},
+]
+
+% \qnsite{style}{name}{fit list} -- wraps already-placed nodes in a node box,
+% drawn on the background layer so the fill stays behind its contents.
+\def\qnsite#1#2#3{%
+  \begin{pgfonlayer}{background}\node[#1, fit=#3] (#2) {};\end{pgfonlayer}}
+
+\def\panW{5.0}          % panel pitch (mirrored by the xshift= below)
+\def\yA{0}              % "before" row
+\def\yB{-2.6}           % "after"  row
+\def\ttly{0.95}         % title row
+\def\capy{-3.35}        % caption row
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% (a) heralded entanglement generation -- the ONE panel with transmission
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{scope}[xshift=-2cm]
+  \node[ttl] at (1.5,\ttly) {(a) generation};
+
+  % before: A keeps one half of a local pair, the other half flies to B
+  \node[nlab] (aAl) at (0,\yA)    {$A$};
+  \node[qb]   (aq1) at (0.5,\yA)  {};
+  \qnsite{sbox}{aA}{(aAl)(aq1)}
+
+  \node[nlab] (aBl) at (3.0,\yA)  {$B$};
+  \node[slot] (aq0) at (2.5,\yA)  {};
+  \qnsite{sbox}{aB}{(aBl)(aq0)}
+
+  \node[qb] (aq2) at (1.15,\yA) {};                 % outside every box
+  \draw[link]   (aq1) to[bend left=30] (aq2);
+  \draw[photon] (aq2) -- (aq0);
+
+  \node[ann, anchor=north] at (1.5,\yA-0.55)
+       {\textcolor{Xcol}{heralding signal}};
+
+  \draw[stepar] (1.5,-1.15) -- (1.5,-1.85);
+
+  % after: both halves stored, one at each end
+  \node[nlab] (aAl2) at (0,\yB)   {$A$};
+  \node[qb]   (aq3)  at (0.5,\yB) {};
+  \qnsite{sbox}{aA2}{(aAl2)(aq3)}
+  \node[nlab] (aBl2) at (3.0,\yB) {$B$};
+  \node[qb]   (aq4)  at (2.5,\yB) {};
+  \qnsite{sbox}{aB2}{(aBl2)(aq4)}
+  \draw[newlink] (aq3) to[bend left=35]
+        node[midway, below=0.5mm, lbl, text=Acc!55!black] {$\ket{\Phi^+}$} (aq4);
+
+  \node[ann, anchor=north, text width=4.2cm] at (1.5,\capy)
+       {success probability $p\ll1$};
+\end{scope}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% (b) entanglement swapping -- everything stays in memory, B measures locally
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{scope}[xshift=7cm]
+  \node[ttl] at (1.5,\ttly) {(b) swapping};
+
+  % before: B stores one qubit of each short link
+  \node[nlab] (bAl) at (-0.4,\yA)    {$A$};
+  \node[qb]   (bq1) at (0.1,\yA)  {};
+  \qnsite{sbox}{bA}{(bAl)(bq1)}
+
+  \node[qb]   (bq2) at (1.1,\yA) {};
+  \node[nlab] (bBl) at (1.55,\yA)  {$B$};
+  \node[qb]   (bq3) at (1.95,\yA) {};
+  \qnsite{mbox}{bB}{(bBl)(bq2)(bq3)}
+
+  \node[qb]   (bq4) at (2.95,\yA) {};
+  \node[nlab] (bCl) at (3.45,\yA) {$C$};
+  \qnsite{sbox}{bC}{(bCl)(bq4)}
+
+  \draw[link] (bq1) to[bend left=30] (bq2);
+  \draw[link] (bq3) to[bend left=30] (bq4);
+
+  \node[ann, anchor=north] at (1.5,\yA-0.55)
+       {\textcolor{Xcol}{heralding signal}};
+
+  \draw[stepar] (1.5,-1.15) -- (1.5,-1.75);
+
+  % after: B's qubits consumed, A and C hold the long link
+  \node[nlab] (bAl2) at (-0.4,\yB)    {$A$};
+  \node[qb]   (bq5)  at (0.1,\yB)  {};
+  \qnsite{sbox}{bA2}{(bAl2)(bq5)}
+
+  \node[slot] (bs1)  at (1.1,\yB) {};
+  \node[dlab] (bBl2) at (1.55,\yB)  {$B$};
+  \node[slot] (bs2)  at (1.95,\yB) {};
+  \qnsite{dbox}{bB2}{(bBl2)(bs1)(bs2)}
+
+  \node[qb]   (bq6)  at (2.95,\yB) {};
+  \node[nlab] (bCl2) at (3.45,\yB) {$C$};
+  \qnsite{sbox}{bC2}{(bCl2)(bq6)}
+
+  \draw[newlink] (bq5) to[bend left=42] (bq6);
+
+  \node[ann, anchor=north, text width=4.2cm] at (1.5,\capy)
+       {extend entanglement};
+\end{scope}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% (c) distillation -- two links already in memory, purely local operations
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \begin{scope}[xshift=10cm]
+%   \node[ttl] at (1.5,\ttly) {(c) distillation};
+
+%   % before: A and C each store two qubits, one per noisy link
+%   \node[nlab] (cAl) at (0,\yA)         {$A$};
+%   \node[qb]   (cq1) at (0.5,\yA)  {};
+%   \node[qb]   (cq2) at (0.9,\yA)  {};
+%   \qnsite{mbox}{cA}{(cAl)(cq1)(cq2)}
+
+%   \node[nlab] (cCl) at (3.05,\yA)      {$C$};
+%   \node[qb]   (cq3) at (2.2,\yA) {};
+%   \node[qb]   (cq4) at (2.65, \yA) {};
+%   \qnsite{mbox}{cC}{(cCl)(cq3)(cq4)}
+
+%   \draw[link] (cq1) to[bend left=38] (cq3);
+%   \draw[link, densely dashed] (cq2) to[bend right=38] (cq4);
+    
+%   \node[ann, anchor=north] at (1.5,\yA-0.55)
+%        {\textcolor{Xcol}{heralding signal}};
+%   % \node[ann, anchor=north] at (1.5,\yA-0.85)
+%   %      {2 noisy pairs, fidelity $F$; nothing is sent:\\
+%   %       \textcolor{Xcol}{local gates $+$ measurement} at $A$ and $C$};
+
+%   \draw[stepar] (1.5,-1.35) -- (1.5,-1.95);
+
+%   % after: one qubit left in each memory, carrying the better pair
+%   \node[nlab] (cAl2) at (0,\yB)    {$A$};
+%   \node[qb]   (cq5)  at (0.5,\yB)  {};
+%   \node[slot] (cs1)  at (0.9,\yB)  {};
+%   \qnsite{sbox}{cA2}{(cAl2)(cq5)(cs1)}
+
+%   \node[nlab] (cCl2) at (3.05,\yB)  {$C$};
+%   \node[slot] (cs2)  at (2.65,\yB) {};
+%   \node[qb]   (cq6)  at (2.2,\yB) {};
+%   \qnsite{sbox}{cC2}{(cCl2)(cs2)(cq6)}
+
+%   \draw[newlink] (cq5) to[bend left=38] (cq6);
+
+%   \node[ann, anchor=north, text width=4.2cm] at (1.5,\capy)
+%        {one better pair, $F' > F$\\ rate down (again probabilistic)};
+% \end{scope}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% panel separators
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\foreach \k in {1}{%
+  \draw[Vcol!20, line width=.6pt]
+       ({\k*\panW-1.0},\ttly+0.35) -- ({\k*\panW-1.0},\capy-0.75);}
+\end{tikzpicture}
