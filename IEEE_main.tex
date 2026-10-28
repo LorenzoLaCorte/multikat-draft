@@ -49,22 +49,23 @@
     
 \begin{document}
 
-\title{Towards the Specification of Stabilizer State Distribution}
+\title{Towards a Language for Multipartite Entanglement Distribution}
 
 \author{Alessandro Ruzza}
 \email{alessandro.ruzza@usi.ch}
-\author{Anita Buckley}
 \author{Lorenzo La Corte}
 \email{lorenzo.la.corte@usi.ch}
+\author{Anita Buckley}
+\email{anita.buckley@usi.ch}
 \author{Patrick Eugster}
 \affiliation{%
-  \institution{Universit\`a della Svizzera italiana}
+  \institution{Universit\`a della Svizzera Italiana (USI)}
   \city{Lugano}
   \country{Switzerland}}
 
 %% acmart: abstract and keywords go before \maketitle
 \begin{abstract}
-Quantum-network protocols increasingly use multipartite entangled states, including photonic graph states, to distribute entanglement across network nodes. Specifying such protocols requires a representation of their quantum resources that is tractable while retaining the distinctions relevant to protocol actions. We propose an algebraic language whose network states are multisets of graph-state classes under local complementation and permutations of qubits within a node. Probabilistic actions describe state creation, transmission, measurement, and fusion, and compose across synchronous rounds. A fusion example shows that an operation on equivalent input graph states can yield inequivalent outputs; our actions therefore specify their output classes explicitly. This provides a starting point for reasoning about multipartite entanglement-distribution protocols beyond Bell-pair resources.
+Multipartite entangled states enable quantum-network protocols to use redundancy even when their goal is to distribute a Bell pair. All-photonic repeaters exemplify this approach, motivating languages that capture the manipulation of intermediate multipartite resources. We outline a vision for an algebraic language for specifying and reasoning about these protocols, inspired by BellKAT and its tools for Bell-pair distribution. We identify three connected design challenges: representing interchangeable quantum resources, specifying the effects of primitive operations, and composing these operations into protocols. As an initial design, we consider graph states modulo local Clifford operations and qubit relabelings within each node, together with actions specifying their input and output resources. Our aim is to support compositional verification and analysis of multipartite entanglement distribution.
 \end{abstract}
 
 \keywords{multipartite entanglement, stabilizer states, quantum networks, algebraic language}
@@ -76,19 +77,14 @@ Quantum-network protocols increasingly use multipartite entangled states, includ
 
 \input{sections/intro}
 
-% \section{Scenario (Network) Description}
-% \label{sec:scenario}
-% \input{sections/scenario_def}
+\section{Problem Statement}
+\label{sec:problem}
+\input{sections/problem}
 
-\section{Language Abstractions}
+\section{Abstractions for the Language}
 \label{sec:abstractions}
 
 \input{sections/lang_abstractions}
-
-\section{Language Semantics}
-\label{sec:semantics}
-
-\input{sections/lang_semantics}
 
 \section{Conclusion and Future Work}
 \label{sec:conclusion}

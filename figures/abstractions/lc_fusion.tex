@@ -1,24 +1,25 @@
 % ---------------------------------------------------------------------------
 % LC-equivalent inputs, non-LC-equivalent outputs under graph fusion.
-% Node T holds a triangle T1,T2,T3; nodes X in {A,B,C} each hold X1,X2,X3.
-%   (a) X-parts are paths X1-X2-X3
-%   (b) X-parts are triangles: tau_{X2} toggles (X1,X3).
+% Node T holds a triangle T1,T2,T3 and transmitted qubits T4,T5,T6.
+%   (a) outer paths are T4-A2-A3, T5-B2-B3, T6-C2-C3
+%   (b) outer parts are triangles: tau_{X2} adds the missing edge.
 %       So (b) = tau_{A2} tau_{B2} tau_{C2} (a).
-% Fusions F(A1,T1), F(B1,T2), F(C1,T3) (green qubits, dashed pairing)
+% Fusions F(T4,T1), F(T5,T2), F(T6,T3) (green qubits, dashed pairing)
 % toggle N(x) x N(t) and delete x,t:
 %   (a) -> triangle A2,B2,C2 with pendants A3,B3,C3
 %   (b) -> complete graph K6, LC-equivalent to GHZ_6
-% The two outputs are not LC equivalent (checked by LC-orbit enumeration).
+% The two outputs are not LCP equivalent: the LC orbit of K6 contains
+% only K6 and stars, under any relabeling.
 % Output vertices are drawn where they sit in the input.
 % B- and C-parts point sideways, level with T2 and T3, to save height.
 % gold = edge added by tau_{X2}.
 % ---------------------------------------------------------------------------
 {\footnotesize
 % the X-part of node #1, rotated by #2 degrees around T and shifted
-% vertically by #4; #3 = style of (X1,X3)
-\newcommand{\lcfx}[4]{%
+% vertically by #4; #3 = style of (X1,X3); #5 = transmitted qubit label
+\newcommand{\lcfx}[5]{%
   \begin{scope}[shift={(0,#4)},rotate=#2]
-    \node[gv,fuv] (#11) at (0,1.3) {$#11$};
+    \node[gv,fuv] (#11) at (0,1.3) {$#5$};
     \node[gv] (#12) at (-0.42,1.95) {$#12$};
     \node[gv] (#13) at (0.42,1.95) {$#13$};
   \end{scope}
@@ -32,9 +33,9 @@
     \node[gv,fuv] (T2) at (210:0.42) {$T2$};
     \node[gv,fuv] (T3) at (330:0.42) {$T3$};
     \draw[ge](T1)--(T2)--(T3)--(T1);
-    \lcfx{A}{0}{#1}{0}
-    \lcfx{B}{90}{#1}{-0.21}
-    \lcfx{C}{-90}{#1}{-0.21}
+    \lcfx{A}{0}{#1}{0}{T4}
+    \lcfx{B}{90}{#1}{-0.21}{T5}
+    \lcfx{C}{-90}{#1}{-0.21}{T6}
     \draw[fpair](A1)--(T1);\draw[fpair](B1)--(T2);\draw[fpair](C1)--(T3);
   \end{tikzpicture}}
 % output panel: #1 = edges
@@ -50,8 +51,8 @@
   \end{tikzpicture}}
 % panel label, raised above the baseline
 \newcommand{\lcflab}[1]{\raisebox{4mm}{\normalsize(#1)}}
-\newcommand{\lcfarr}{{\small$\xrightarrow{\ \substack{\textstyle\fuse{A1,T1}\\[2pt]
-    \textstyle\fuse{B1,T2}\\[2pt]\textstyle\fuse{C1,T3}}\ }$}}
+\newcommand{\lcfarr}{{\small$\xrightarrow{\ \substack{\textstyle\fuse{T4,T1}\\[2pt]
+    \textstyle\fuse{T5,T2}\\[2pt]\textstyle\fuse{T6,T3}}\ }$}}
 \setlength{\tabcolsep}{1pt}%
 \resizebox{0.85\linewidth}{!}{%
 \begin{tabular}{@{}c@{}c@{}c@{}c@{}c@{}}
@@ -59,7 +60,7 @@
   & \lcfout{\draw[ge](A2)--(A3);\draw[ge](B2)--(B3);\draw[ge](C2)--(C3);
              \draw[ge](A2)--(B2)--(C2)--(A2);} & \lcflab{a'} \\\noalign{\vskip 12pt}
   & {\large$\Big\updownarrow\ \localComp{A2}\localComp{B2}\localComp{C2}$}
-  & & {\Large$\not\sim_{\mathrm{LC}}$} \\\noalign{\vskip 12pt}
+        & & {\Large$\not\sim_{\mathrm{LCP}}$} \\\noalign{\vskip 12pt}
 \lcflab{b} & \lcfin{newe} & \lcfarr
   & \lcfout{\foreach \u/\v in {A2/A3,A2/B2,A2/B3,A2/C2,A2/C3,A3/B2,A3/B3,
                A3/C2,A3/C3,B2/B3,B2/C2,B2/C3,B3/C2,B3/C3,C2/C3}

@@ -1,0 +1,46 @@
+% !TEX root = ../IEEE_main.tex
+
+The central challenge is to choose abstractions that hide implementation details while retaining the information needed to describe protocol behavior. Following BellKAT, we separate three questions: how to represent resources, how to specify operations on them, and how to compose operations into protocols.
+
+\paragraph{(i) Multipartite resources.}
+BellKAT represents a Bell pair by a symmetric pair of network locations, $\bp{A}{B}$, recording where its qubits reside. The particular Bell state and the identities of the local qubits are abstracted away: known local corrections make the Bell states interchangeable for the modeled operations. This gives a simple resource on which actions can operate.
+
+A list of locations such as $A\edge B\edge C\edge D$ is insufficient for multipartite entanglement. The connectivity must be specified; for example, a path and a cycle on these locations have edge sets
+\[
+E_{\mathrm{path}}=\{AB,BC,CD\},
+\qquad
+E_{\mathrm{cycle}}=E_{\mathrm{path}}\cup\{AD\}.
+\]
+Measuring $B$ and $C$ in the Pauli-$Z$ basis leaves $A$ and $D$ disconnected in the path, but entangled in the cycle. Thus, the same locations can support resources with different behavior.
+
+Graph states are a natural starting point. A graph $G=(V,E)$ denotes qubits prepared in $\ket{+}=(\ket{0}+\ket{1})/\sqrt{2}$, with a controlled-$Z$ gate for each edge. Its edges describe a quantum state, independently of the network's physical channel topology. A single edge represents a Bell pair up to a local Clifford correction. Every pure stabilizer state is equivalent to a graph state under local Clifford operations~\cite{vandennest2004graphical}.\footnote{Local Clifford operations are products of single-qubit Clifford gates. Equivalent inputs can produce inequivalent outputs under the same fixed physical operation. We assume that an implementation tracks the concrete state and applies the local corrections needed by the selected action; their cost is abstracted away. Interchangeability is understood with this adaptation.}
+
+Even a graph representation must hide irrelevant distinctions. Write $Xi$ for a qubit at node $X$, where $i$ is a temporary identifier. The paths in \cref{fig:lp} are not locally Clifford equivalent with fixed labels, yet exchanging $A2$ and $A3$ relates them. If local qubits are interchangeable, either path should satisfy the same resource requirement after relabeling. The desired representation must therefore retain entanglement structure and node locations while abstracting over these local choices.
+
+\begin{figure}[t]
+    \centering
+    \input{figures/abstractions/lp_equiv}
+    \caption{Two paths held entirely at node $A$, related by exchanging labels $A2$ and $A3$. Their distinct descriptions should denote the same resource.}
+    \Description{The paths A1--A2--A3--A4 and A1--A3--A2--A4 are related by swapping their two internal labels.}
+    \label{fig:lp}
+\end{figure}
+
+\paragraph{(ii) Primitive actions.}
+BellKAT describes operations such as generation, swapping, and distillation by actions $\act{r}{o}$ that consume a multiset $r$ of resources and produce a multiset $o$. For example, entanglement swapping at $B$ consumes $\bp{A}{B}$ and $\bp{B}{C}$ to produce $\bp{A}{C}$, or fails. We seek analogous actions for multipartite resources, including graph-state fusions and Pauli measurements.
+
+A fusion is a joint measurement of two qubits that can entangle the unmeasured parts of their resource states. The chosen measurement matters. In \cref{fig:LC-input-nonLC-output}, $\fuse{u,v}$ denotes a destructive measurement of the commuting Pauli observables $X_uZ_v$ and $Z_uX_v$. For the nonadjacent qubits with disjoint neighborhoods used here, success toggles every edge between the two neighborhoods and removes $u,v$, up to local corrections~\cite{loebl2025bellfusion}. The fused qubits have already been transmitted to node $T$.
+
+The two inputs in the figure are related by local complementations: complementing at a vertex toggles edges between its neighbors. Such graph transformations characterize local Clifford equivalence~\cite{vandennest2004graphical}. Nevertheless, applying the same three fusions gives a triangle with leaves in one case and a complete graph in the other. These outputs remain inequivalent even allowing relabeling: the local-complementation orbit of a complete graph contains only that graph and stars.
+
+\begin{figure}[t]
+    \centering
+    \input{figures/abstractions/lc_fusion}
+    \caption{Locally equivalent inputs with different fusion outputs. All green qubits are at $T$; $A2,A3$, $B2,B3$, and $C2,C3$ remain at their respective nodes. Complementations at $A2,B2,C2$ add the gold edges. In both rows, successful fusions consume the green pairs.}
+    \Description{Four panels compare two locally equivalent inputs and their fusion outputs. Paths yield a triangle with three leaves; replacing the paths by triangles yields a complete graph on the six surviving qubits.}
+    \label{fig:LC-input-nonLC-output}
+\end{figure}
+
+Thus, an input class and a pair of qubit names do not determine a fusion action. We propose to specify both the required input and the intended output resources, as BellKAT already does, and require an implementation realizing that transformation. Its choice of representative and measurement must also justify the specified success and failure outcomes.
+
+\paragraph{(iii) Protocols.}
+The goal is to express protocols as algebraic expressions combining actions sequentially and concurrently. Their semantics should describe resource consumption, competing operations, and reactions to outcomes. The challenge is to make the state and action abstractions support sound compositional reasoning, so that equations between expressions justify protocol transformations. BellKAT and PBKAT provide the starting point; carrying their reasoning principles over to multipartite resources requires a new soundness argument.

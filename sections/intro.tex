@@ -1,20 +1,46 @@
 % !TEX root = ../IEEE_main.tex
 
-Quantum networks distribute entanglement among nodes connected by quantum channels. Many established protocols treat Bell pairs, entangled states of two qubits, as their basic resource~\cite{buckley2024bellkat,buckley2025pbkat}. Other proposals use multipartite entanglement as an intermediate resource: all-photonic repeaters, for example, prepare graph states and combine them through measurements and fusions to distribute entanglement without long-lived quantum memories~\cite{azuma2015_all-photonic,fischer2020distributinggraph}. A protocol specification must account for the states present at different nodes, the operations that consume and produce them, and the possibility that an operation fails.
+% Def. QNs
+\emph{\Acp{qn}} are built for the goal of distributing entanglement across separate interconnected nodes.
+%
+% Foundational QNs (BPs key resource)
+Foundational works~\cite{zhu2025remote} focus on the distribution of \emph{\acp{bp}}, i.e., a pair of \ale{maximally} entangled qubits. \Acp{bp} are a key resource in \acp{qn} as they are used in a wide range of applications, such as quantum key distribution~\cite{} and distributed quantum computing~\cite{caleffi2024dqcsurvey}.\alenote{more/change applications, e.g. change/cut distrib. QC}
+%
+\Ac{bp} distribution is not a trivial task, as it has to deal with channel losses that grow exponentially with the distance of the nodes and qubit decoherence. Quantum repeaters have been devised to address these losses, but they typically require quantum memories, which are challenging experimental hardware~\cite{}.
 
-Graph states offer a compact description of a useful family of stabilizer states: vertices denote qubits and edges specify the controlled-Z gates used to prepare the state~\cite{vandennest2004graphical}. A literal graph description, however, records details that a distribution protocol need not distinguish. Local complementations relate graph states through single-qubit Clifford operations, and the labels of qubits held at the same node can be exchanged. We therefore describe a resource by an equivalence class under local complementations and within-node qubit permutations. This abstraction keeps track of which nodes hold a multipartite state while hiding local corrections and memory labels.
+% Modern QNs (e.g. all photonic) use stabilizer (graph?) states
+Modern \acp{qn}~\cite{munro2012,azuma2015_all-photonic,naphan2026bridging,niu2023_all-photonic} leverage multipartite entangled states, namely \emph{stabilizer states}, to introduce redundancy in the distribution protocol and facilitate the distribution of \acp{bp} without requiring quantum memories.
+%
+Multipartite entanglement is a key resource for applications of quantum computation and communication,
+such as multipartite quantum key distribution~\cite{epping2017multipartiteqkd,murta2020cka}, 
+blind quantum computing~\cite{} 
+and distributed quantum computing~\cite{caleffi2024dqcsurvey}.\llc{repeated}
+Furthermore, stabilizer states are the core of \emph{quantum error correction}, which provides a path towards fault-tolerant quantum technologies by encoding information redundantly across larger quantum systems~\cite{nielsen2010quantum}.
+%
+For instance, all-photonic entanglement distribution protocols~\cite{azuma2015_all-photonic,naphan2026bridging} produce intermediate stabilizer states and \emph{fuse}~\cite{loebl2025bellfusion} them into larger ones~\cite{fischer2020distributinggraph}.
+In order to specify and analyze these protocols, one % \ale{a user?} 
+must be able to efficiently describe stabilizer states and operations on them.
+% To achieve a tractable representation...
+%
+% BPs can also be used for graph state distribution (Ale: possibly useless remark)
+%
+Previous work~\cite{buckley2024bellkat,buckley2025pbkat,lacorte2026pbkatQCNC} has formalized \ac{bp} distribution protocols in arbitrary \acp{qn} by developing an algebraic language and a software tool to respectively define and analyze \ac{bp} distribution protocols. In \cref{sec:problem} we delve into what was done and what is needed to analyze stabilizer state distribution protocols instead.
 
-The abstraction raises a semantic issue. A physical operation need not give the same output class for every representative of an input class: the fusion example in \cref{fig:LC-input-nonLC-output} produces distinct outcomes from locally equivalent inputs. We address this at the level of protocol specification by making the intended output class of each action explicit. Following PBKAT~\cite{buckley2025pbkat}, protocols combine actions sequentially across rounds and in parallel or with priority within a round, with guards and iteration expressing control flow.
+\ale{1-3 extra lines can be added}
+% One such class is the stabilizer formalism~\cite{gottesman1997stabilizer}, a 
+% family of quantum states and operations with an efficient mathematical description~\cite{vandennest2004graphical,aaronson2004improved,anders2006fastsimulation,hu2022improvedgraph}.
+%
+% The stabilizer formalism is closed under Clifford gates and Pauli measurements and its states, called \emph{stabilizer states}, 
+% Stabilizer states are commonly described using a graph $G$ where vertices represent qubits and edges represent entanglement among them. $G$ alone can only represent a subset of stabilizer states called \emph{graph states}, which are equivalent to stabilizer states only up to local Clifford operations. 
+% \alenote{improve this paragraph}
 
 \subsection{Contributions}
 \label{sec:contributions}
 \input{sections/contribution}
 
-% \subsection{Outline}
-% The rest of the paper is organized as follows.
-% \Cref{sec:relwork} ...
-% \Cref{sec:} ...
-% \Cref{sec:...} ...
-% \Cref{sec:outlook} concludes and discusses future directions.
+% \subsection{Related Work}
+% \label{sec:relwork}
+% \input{sections/relwork}
 
 %% if short on space maybe replace "Section" with "$" in the \cref ? Are we even allowed?
+Z
